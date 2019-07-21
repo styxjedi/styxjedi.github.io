@@ -99,17 +99,18 @@
   };
 </script>
 
-  <meta name="description" content="直而温，宽而栗，刚而无虐，简而无傲">
-<meta name="keywords" content="NLP, 自然语言处理, Python, Linux, 算法">
-<meta property="og:type" content="website">
-<meta property="og:title" content="StyxJedi&#39;s Blog">
-<meta property="og:url" content="https://styxjedi.github.io/categories/机器学习/index.html">
+  <meta name="description" content="要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。">
+<meta name="keywords" content="文本聚类,sklearn,K-means">
+<meta property="og:type" content="article">
+<meta property="og:title" content="scikit-learn应用：基于K-mearns的新闻聚类">
+<meta property="og:url" content="https://styxjedi.github.io/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/index.html">
 <meta property="og:site_name" content="StyxJedi&#39;s Blog">
-<meta property="og:description" content="直而温，宽而栗，刚而无虐，简而无傲">
+<meta property="og:description" content="要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-21T17:32:21.331Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="StyxJedi&#39;s Blog">
-<meta name="twitter:description" content="直而温，宽而栗，刚而无虐，简而无傲">
+<meta name="twitter:title" content="scikit-learn应用：基于K-mearns的新闻聚类">
+<meta name="twitter:description" content="要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。">
 
 
 
@@ -117,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://styxjedi.github.io/categories/机器学习/">
+  <link rel="canonical" href="https://styxjedi.github.io/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/">
 
 
 
@@ -128,7 +129,7 @@
 </script>
 
   
-  <title>分类: 机器学习 | StyxJedi's Blog</title>
+  <title>scikit-learn应用：基于K-mearns的新闻聚类 | StyxJedi's Blog</title>
   
 
 
@@ -176,7 +177,7 @@
     
   
 
-  <div class="container sidebar-position-right ">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -234,7 +235,7 @@
         
         
           
-          <li class="menu-item menu-item-categories menu-item-active">
+          <li class="menu-item menu-item-categories">
 
     
     
@@ -295,25 +296,6 @@
   
     
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
   
 
   
@@ -355,57 +337,322 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h2>机器学习<small>分类</small>
-        </h2>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://styxjedi.github.io/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/">
 
-      <h3 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="StyxJedi">
+      <meta itemprop="description" content="直而温，宽而栗，刚而无虐，简而无傲">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="StyxJedi's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-          <a class="post-title-link" href="/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/" itemprop="url">
-            
-              <span itemprop="name">scikit-learn应用：基于K-mearns的新闻聚类</span>
-            
-          </a>
         
-      </h3>
+          <h2 class="post-title" itemprop="name headline">scikit-learn应用：基于K-mearns的新闻聚类
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2018-03-22T19:40:51+08:00" content="2018-03-22">
-          03-22
-        </time>
-      </div>
+              
+            
+          </h2>
+        
 
-    </header>
-  </article>
+        <div class="post-meta">
 
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-22 19:40:51" itemprop="dateCreated datePublished" datetime="2018-03-22T19:40:51+08:00">2018-03-22</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-22 01:32:21" itemprop="dateModified" datetime="2019-07-22T01:32:21+08:00">2019-07-22</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/机器学习/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+            <span id="/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/" class="post-meta-item leancloud_visitors" data-flag-title="scikit-learn应用：基于K-mearns的新闻聚类">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读次数：</span>
+              
+                <span class="leancloud-visitors-count"></span>
+            </span>
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。</p>
+<a id="more"></a>
+
+<h2 id="0x001、预处理：分词、去停用词"><a href="#0x001、预处理：分词、去停用词" class="headerlink" title="0x001、预处理：分词、去停用词"></a>0x001、预处理：分词、去停用词</h2><p>这里使用比较简单的jieba分词库进行分词。对每篇文章分词后，将出现在停用词表中的词删除。</p>
+<ul>
+<li>在分词之前，为了提高分词精确度，可以导入自定义词库。</li>
+<li>清华大学中文分词库：<a href="http://thuocl.thunlp.org" target="_blank" rel="noopener">THUOCL</a></li>
+<li>在Github上找到一份停用词表：<a href="https://github.com/goto456/stopwords" target="_blank" rel="noopener">goto456/stopwords</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line">jieba.load_userdict(<span class="string">'path/to/dict'</span>) <span class="comment"># 导入用户词典</span></span><br><span class="line">doc = <span class="string">'今天天气真好。'</span></span><br><span class="line">data = jieba.lcut(doc) <span class="comment"># 分词并返回list格式</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="0x002、基于TF-IDF的特征向量"><a href="#0x002、基于TF-IDF的特征向量" class="headerlink" title="0x002、基于TF-IDF的特征向量"></a>0x002、基于TF-IDF的特征向量</h2><p>分词之后，每个词的TF-IDF值可以看作这个词的权重。依照权重逆序排列之后，前n个词可以看做n个特征。那么对于每个文档，就可以得到一个n维的特征向量。</p>
+<p>这个过程可以调用sklearn的API实现，非常方便。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer</span><br><span class="line"><span class="comment"># 将分词结果放入列表中：</span></span><br><span class="line">corpus=[<span class="string">"我 来到 北京 清华大学"</span>,<span class="comment">#第一类文本切词后的结果，词之间以空格隔开  </span></span><br><span class="line">        <span class="string">"他 来到 了 网易 杭研 大厦"</span>,<span class="comment">#第二类文本的切词结果  </span></span><br><span class="line">        <span class="string">"小明 硕士 毕业 与 中国 科学院"</span>,<span class="comment">#第三类文本的切词结果  </span></span><br><span class="line">        <span class="string">"我 爱 北京 天安门"</span>]<span class="comment">#第四类文本的切词结果 </span></span><br><span class="line">vectorizer = TfidfVectorizer(max_features=<span class="number">20</span>) <span class="comment"># max_features设置最多提取几个特征</span></span><br><span class="line">data = vectorizer.fit_transform(vectorizer) <span class="comment"># 训练并将corpus中的文档逐条转成特征向量</span></span><br><span class="line"><span class="comment"># 可以通过 vectorizer.get_features()获得特征词</span></span><br><span class="line"><span class="comment"># 可以通过 data.toarray()获得numpy.array格式的特征向量</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="0x003、基于K-means的文本聚类"><a href="#0x003、基于K-means的文本聚类" class="headerlink" title="0x003、基于K-means的文本聚类"></a>0x003、基于K-means的文本聚类</h2><p>同样的，这里直接调用sklearn的API实现。示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.cluster <span class="keyword">import</span> KMeans</span><br><span class="line">X = np.array([[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">1</span>, <span class="number">4</span>], [<span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">              [<span class="number">4</span>, <span class="number">2</span>], [<span class="number">4</span>, <span class="number">4</span>], [<span class="number">4</span>, <span class="number">0</span>]])</span><br><span class="line">kmeans = KMeans(n_clusters=<span class="number">2</span>, random_state=<span class="number">0</span>)</span><br><span class="line">labels = kmeans.fit_predict(X) <span class="comment"># 获得X中每个类的标签</span></span><br><span class="line">centers = kmeans.cluster_centers_ <span class="comment"># 获得每个类的中心</span></span><br></pre></td></tr></table></figure>
+
+<p>以上。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://blog.csdn.net/ixuhangyi/article/details/51820328" target="_blank" rel="noopener">scikit-learn文本特征提取之TfidfVectorizer</a></li>
+<li><a href="http://blog.csdn.net/liuxuejiang158blog/article/details/31360765" target="_blank" rel="noopener">python scikit-learn计算tf-idf词语权重</a></li>
+<li><a href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html" target="_blank" rel="noopener">sklearn.feature_extraction.text.TfidfVectorizer</a></li>
+<li><a href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html" target="_blank" rel="noopener">sklearn.cluster.KMeans</a></li>
+</ol>
 
       
     </div>
 
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>谢谢支持！</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.jpg" alt="StyxJedi 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.jpg" alt="StyxJedi 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>StyxJedi</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://styxjedi.github.io/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/" title="scikit-learn应用：基于K-mearns的新闻聚类">https://styxjedi.github.io/2018/03/22/scikit-learn应用：基于K-mearns的新闻聚类/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/文本聚类/" rel="tag"><i class="fa fa-tag"></i> 文本聚类</a>
+          
+            <a href="/tags/sklearn/" rel="tag"><i class="fa fa-tag"></i> sklearn</a>
+          
+            <a href="/tags/K-means/" rel="tag"><i class="fa fa-tag"></i> K-means</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/21/python文本去重方法：simhash/" rel="next" title="python文本去重方法：simhash">
+                <i class="fa fa-chevron-left"></i> python文本去重方法：simhash
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
 
         </div>
         
@@ -425,8 +672,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
 
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -583,6 +839,23 @@
       </div>
 
       
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x001、预处理：分词、去停用词"><span class="nav-number">1.</span> <span class="nav-text">0x001、预处理：分词、去停用词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x002、基于TF-IDF的特征向量"><span class="nav-number">2.</span> <span class="nav-text">0x002、基于TF-IDF的特征向量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x003、基于K-means的文本聚类"><span class="nav-number">3.</span> <span class="nav-text">0x003、基于K-means的文本聚类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
       
 
@@ -708,6 +981,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
 
   <script src="/js/next-boot.js?v=7.2.0"></script>
 
@@ -755,6 +1032,8 @@
 
 
 
+
+  
 
 
   
