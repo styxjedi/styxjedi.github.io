@@ -441,6 +441,18 @@
           
             
             
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2017/08/01/Python爬虫指归（一）/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2017/08/01/Python爬虫指归（一）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -745,7 +757,6 @@
 
   
     <div class="comments" id="comments">
-      <div id="lv-container" data-id="city" data-uid="MTAyMC8yOTk1Ny82NTIy"></div>
     </div>
 
   
@@ -980,7 +991,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动</div>
 
 
 
@@ -988,7 +999,7 @@
 
 
 
-  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.2.0</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a></div>
 
 
 
@@ -1133,25 +1144,33 @@
   
 
   
-
-
   
-    
 
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
 
 <script>
-  window.livereOptions = {
-    refer: '2017/08/01/Python爬虫指归（一）/'
-  };
-  (function(d, s) {
-    var j, e = d.getElementsByTagName(s)[0];
-    if (typeof LivereTower === 'function') { return; }
-    j = d.createElement(s);
-    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
-    j.async = true;
-    e.parentNode.insertBefore(j, e);
-  })(document, 'script');
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'MRDoFjNpOtj9TIoDstexH0Th-gzGzoHsz',
+    appKey: 'kmb9R9BM9FzzNR6FkqkRDDSp',
+    placeholder: '撰写评论（仅填写昵称即可）',
+    avatar: 'retro',
+    meta: guest,
+    pageSize: '20' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
 </script>
+
+
+
 
   
 
