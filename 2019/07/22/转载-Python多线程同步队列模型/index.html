@@ -99,17 +99,18 @@
   };
 </script>
 
-  <meta name="description" content="直而温，宽而栗，刚而无虐，简而无傲">
-<meta name="keywords" content="NLP, 自然语言处理, Python, Linux, 算法">
-<meta property="og:type" content="website">
-<meta property="og:title" content="StyxJedi&#39;s Blog">
-<meta property="og:url" content="https://styxjedi.github.io/tags/simhash/index.html">
+  <meta name="description" content="（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ） 在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。 原文如下： 我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。">
+<meta name="keywords" content="Python,NLP,多线程,分词">
+<meta property="og:type" content="article">
+<meta property="og:title" content="转载-Python多线程同步队列模型">
+<meta property="og:url" content="https://styxjedi.github.io/2019/07/22/转载-Python多线程同步队列模型/index.html">
 <meta property="og:site_name" content="StyxJedi&#39;s Blog">
-<meta property="og:description" content="直而温，宽而栗，刚而无虐，简而无傲">
+<meta property="og:description" content="（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ） 在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。 原文如下： 我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-22T03:32:59.414Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="StyxJedi&#39;s Blog">
-<meta name="twitter:description" content="直而温，宽而栗，刚而无虐，简而无傲">
+<meta name="twitter:title" content="转载-Python多线程同步队列模型">
+<meta name="twitter:description" content="（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ） 在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。 原文如下： 我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。">
 
 
 
@@ -117,7 +118,7 @@
 
   
   
-  <link rel="canonical" href="https://styxjedi.github.io/tags/simhash/">
+  <link rel="canonical" href="https://styxjedi.github.io/2019/07/22/转载-Python多线程同步队列模型/">
 
 
 
@@ -128,7 +129,7 @@
 </script>
 
   
-  <title>标签: simhash | StyxJedi's Blog</title>
+  <title>转载-Python多线程同步队列模型 | StyxJedi's Blog</title>
   
 
 
@@ -176,7 +177,7 @@
     
   
 
-  <div class="container sidebar-position-right ">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -266,7 +267,7 @@
         
         
           
-          <li class="menu-item menu-item-tags menu-item-active">
+          <li class="menu-item menu-item-tags">
 
     
     
@@ -294,25 +295,6 @@
 
   
     
-
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
 
   
 
@@ -355,57 +337,301 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block tag">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h2>simhash<small>标签</small>
-        </h2>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://styxjedi.github.io/2019/07/22/转载-Python多线程同步队列模型/">
 
-      <h3 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="StyxJedi">
+      <meta itemprop="description" content="直而温，宽而栗，刚而无虐，简而无傲">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="StyxJedi's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
         
-          <a class="post-title-link" href="/2018/03/21/python文本去重方法：simhash/" itemprop="url">
-            
-              <span itemprop="name">python文本去重方法：simhash</span>
-            
-          </a>
         
-      </h3>
+          <h2 class="post-title" itemprop="name headline">转载-Python多线程同步队列模型
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2018-03-21T19:40:51+08:00" content="2018-03-21">
-          03-21
-        </time>
-      </div>
+              
+            
+          </h2>
+        
 
-    </header>
-  </article>
+        <div class="post-meta">
 
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-22 11:24:47 / 修改时间：11:32:59" itemprop="dateCreated datePublished" datetime="2019-07-22T11:24:47+08:00">2019-07-22</time>
+            </span>
+          
+
+          
+            
+
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/07/22/转载-Python多线程同步队列模型/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/07/22/转载-Python多线程同步队列模型/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>（本文转载自 <a href="http://yjliu.net/" target="_blank" rel="noopener">Static Oneplus 不可控制论</a> ,原文链接：<a href="http://yjliu.net/notes/2013/04/17/python-queue-thread-model.html" target="_blank" rel="noopener">Python 多线程同步队列模型</a> ）</p>
+<p>在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。</p>
+<p>原文如下：</p>
+<p>我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。</p>
+<p>这一个过程可以抽象成一个叫“同步队列”的模型。 具体来讲，有一个生产者（Dispatcher）一方面从语料中读入句子，并且存入队列中，一方面看有没有空闲的消费者（Segmentor），如果有，就把句子从队列中弹出并交给这个空闲的消费者处理。 然后消费者把处理完成的结果交给生产者输出，生产者要保证输出与输入顺序一致。</p>
+<a id="more"></a>
+
+<p>消费者是典型的threading，它需要看见生成者的队列，从而从队列中拿一些数据。</p>
+<p>对于生产者，python中有一个叫Queue的module，实现了FIFO的同步队列。 但它只能保证输入与交付消费者的顺序的有序，但不能保障生产者在输出时有序，所以需要一个buffer来保存输出顺序。 程序的模型大概是这样的。有一个master()，用来分发任务。有N个多线程的slave用来处理任务。</p>
+<p>具体程序如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># real    3m0.263s</span></span><br><span class="line"><span class="comment"># user    0m0.016s</span></span><br><span class="line"><span class="comment"># sys     0m0.012s</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> queue <span class="keyword">import</span> Queue</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread, Lock</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Segmentor</span><span class="params">(Thread)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, dispatcher)</span>:</span></span><br><span class="line">        Thread.__init__(self)</span><br><span class="line">        self.d = dispatcher</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            idx, item = self.d.get()</span><br><span class="line">            <span class="comment"># segment section</span></span><br><span class="line">            sleep(random() * <span class="number">5</span>)</span><br><span class="line">            <span class="comment"># output section</span></span><br><span class="line">            d.output( idx, item )</span><br><span class="line">            self.d.task_done()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dispatcher</span><span class="params">(Queue)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        Queue.__init__(self)</span><br><span class="line">        self.idx = <span class="number">0</span></span><br><span class="line">        self.box = &#123;&#125;</span><br><span class="line">        self.lock = Lock()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">output</span><span class="params">(self, idx, item)</span>:</span></span><br><span class="line">        self.lock.acquire()</span><br><span class="line">        <span class="keyword">if</span> idx &gt; self.idx:</span><br><span class="line">            self.box[idx] = item</span><br><span class="line">        <span class="keyword">elif</span> idx == self.idx:</span><br><span class="line">            self._output(item)</span><br><span class="line">            self.idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> self.idx <span class="keyword">in</span> self.box:</span><br><span class="line">                item = self.box[self.idx]</span><br><span class="line">                self._output(item)</span><br><span class="line">                self.idx += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        self.lock.release()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_output</span><span class="params">(self, item)</span>:</span></span><br><span class="line">        print(item)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">"__main__"</span>:</span><br><span class="line">    d = Dispatcher()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">4</span>):</span><br><span class="line">        t = Segmentor(d)</span><br><span class="line">        t.daemon = <span class="literal">True</span></span><br><span class="line">        t.start()</span><br><span class="line"></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">"data"</span>, <span class="string">"r"</span>):</span><br><span class="line">        d.put( (num, line.strip()) )</span><br><span class="line">        num += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    d.join()</span><br></pre></td></tr></table></figure>
+
+<p>在300句的条件下，单线程的处理速度约为750s=12m，开4个线程后3m可以处理完成，并且输出是有序的。</p>
+<p>其他语言应该可以仿照这个方式编写程序，对于没有同步队列的语言，实现时可以参考这个：<a href="http://hg.python.org/cpython/file/2.7/Lib/Queue.py" target="_blank" rel="noopener">http://hg.python.org/cpython/file/2.7/Lib/Queue.py</a></p>
 
       
     </div>
 
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>谢谢支持！</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.jpg" alt="StyxJedi 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.jpg" alt="StyxJedi 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>StyxJedi</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://styxjedi.github.io/2019/07/22/转载-Python多线程同步队列模型/" title="转载-Python多线程同步队列模型">https://styxjedi.github.io/2019/07/22/转载-Python多线程同步队列模型/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"><i class="fa fa-tag"></i> Python</a>
+          
+            <a href="/tags/NLP/" rel="tag"><i class="fa fa-tag"></i> NLP</a>
+          
+            <a href="/tags/多线程/" rel="tag"><i class="fa fa-tag"></i> 多线程</a>
+          
+            <a href="/tags/分词/" rel="tag"><i class="fa fa-tag"></i> 分词</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/22/解决Ubuntu18-04系统无声音问题/" rel="next" title="解决Ubuntu18.04系统无声音问题">
+                <i class="fa fa-chevron-left"></i> 解决Ubuntu18.04系统无声音问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
 
         </div>
         
@@ -754,6 +980,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
 
   <script src="/js/next-boot.js?v=7.2.0"></script>
 
@@ -801,6 +1031,8 @@
 
 
 
+
+  
 
 
   

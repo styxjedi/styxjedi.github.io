@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[转载-Python多线程同步队列模型]]></title>
+    <url>%2F2019%2F07%2F22%2F%E8%BD%AC%E8%BD%BD-Python%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E9%98%9F%E5%88%97%E6%A8%A1%E5%9E%8B%2F</url>
+    <content type="text"><![CDATA[（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ） 在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。 原文如下： 我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。 这一个过程可以抽象成一个叫“同步队列”的模型。 具体来讲，有一个生产者（Dispatcher）一方面从语料中读入句子，并且存入队列中，一方面看有没有空闲的消费者（Segmentor），如果有，就把句子从队列中弹出并交给这个空闲的消费者处理。 然后消费者把处理完成的结果交给生产者输出，生产者要保证输出与输入顺序一致。 消费者是典型的threading，它需要看见生成者的队列，从而从队列中拿一些数据。 对于生产者，python中有一个叫Queue的module，实现了FIFO的同步队列。 但它只能保证输入与交付消费者的顺序的有序，但不能保障生产者在输出时有序，所以需要一个buffer来保存输出顺序。 程序的模型大概是这样的。有一个master()，用来分发任务。有N个多线程的slave用来处理任务。 具体程序如下： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061#!/usr/bin/env python# real 3m0.263s# user 0m0.016s# sys 0m0.012sfrom time import sleepfrom random import randomfrom queue import Queuefrom threading import Thread, Lockclass Segmentor(Thread): def __init__(self, dispatcher): Thread.__init__(self) self.d = dispatcher def run(self): while True: idx, item = self.d.get() # segment section sleep(random() * 5) # output section d.output( idx, item ) self.d.task_done()class Dispatcher(Queue): def __init__(self): Queue.__init__(self) self.idx = 0 self.box = &#123;&#125; self.lock = Lock() def output(self, idx, item): self.lock.acquire() if idx &gt; self.idx: self.box[idx] = item elif idx == self.idx: self._output(item) self.idx += 1 while self.idx in self.box: item = self.box[self.idx] self._output(item) self.idx += 1 self.lock.release() def _output(self, item): print(item)if __name__=="__main__": d = Dispatcher() for i in xrange(4): t = Segmentor(d) t.daemon = True t.start() num = 0 for line in open("data", "r"): d.put( (num, line.strip()) ) num += 1 d.join() 在300句的条件下，单线程的处理速度约为750s=12m，开4个线程后3m可以处理完成，并且输出是有序的。 其他语言应该可以仿照这个方式编写程序，对于没有同步队列的语言，实现时可以参考这个：http://hg.python.org/cpython/file/2.7/Lib/Queue.py]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Python</tag>
+        <tag>NLP</tag>
+        <tag>多线程</tag>
+        <tag>分词</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[解决Ubuntu18.04系统无声音问题]]></title>
+    <url>%2F2019%2F07%2F22%2F%E8%A7%A3%E5%86%B3Ubuntu18-04%E7%B3%BB%E7%BB%9F%E6%97%A0%E5%A3%B0%E9%9F%B3%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[1. 问题描述Ubuntu18.04系统有个必现的bug，并且会影响到基于该系统的Linux Mint 19.1。 首先用 HDMI 线连接电视机或大屏幕，然后在“设置–&gt;声音”里面选择音频输出设备为 HDMI 设备，然后拔掉 HDMI 线，这时候系统就没有声音了。 2. 问题解决解决方法并不复杂，使用 pavucontrol 软件设置一下就好了。 在终端中输入： 123sudo apt-get updatesudo apt-get install pavucontrolpavucontrol 在打开的窗口中将“配置–&gt;内置音频–&gt;侧写”的配置改为无，系统就又有声音了。 参考链接 ubuntu18.04 切换音频输出设备然后拔掉hdmi线，系统无声音]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>技巧</tag>
+        <tag>Linux</tag>
+        <tag>Ubuntu</tag>
+        <tag>记录</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[scikit-learn应用：基于K-mearns的新闻聚类]]></title>
     <url>%2F2018%2F03%2F22%2Fscikit-learn%E5%BA%94%E7%94%A8%EF%BC%9A%E5%9F%BA%E4%BA%8EK-mearns%E7%9A%84%E6%96%B0%E9%97%BB%E8%81%9A%E7%B1%BB%2F</url>
     <content type="text"><![CDATA[要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。 0x001、预处理：分词、去停用词这里使用比较简单的jieba分词库进行分词。对每篇文章分词后，将出现在停用词表中的词删除。 在分词之前，为了提高分词精确度，可以导入自定义词库。 清华大学中文分词库：THUOCL 在Github上找到一份停用词表：goto456/stopwords 1234import jiebajieba.load_userdict('path/to/dict') # 导入用户词典doc = '今天天气真好。'data = jieba.lcut(doc) # 分词并返回list格式 0x002、基于TF-IDF的特征向量分词之后，每个词的TF-IDF值可以看作这个词的权重。依照权重逆序排列之后，前n个词可以看做n个特征。那么对于每个文档，就可以得到一个n维的特征向量。 这个过程可以调用sklearn的API实现，非常方便。 12345678910from sklearn.feature_extraction.text import TfidfVectorizer# 将分词结果放入列表中：corpus=["我 来到 北京 清华大学",#第一类文本切词后的结果，词之间以空格隔开 "他 来到 了 网易 杭研 大厦",#第二类文本的切词结果 "小明 硕士 毕业 与 中国 科学院",#第三类文本的切词结果 "我 爱 北京 天安门"]#第四类文本的切词结果 vectorizer = TfidfVectorizer(max_features=20) # max_features设置最多提取几个特征data = vectorizer.fit_transform(vectorizer) # 训练并将corpus中的文档逐条转成特征向量# 可以通过 vectorizer.get_features()获得特征词# 可以通过 data.toarray()获得numpy.array格式的特征向量 0x003、基于K-means的文本聚类同样的，这里直接调用sklearn的API实现。示例如下： 123456from sklearn.cluster import KMeansX = np.array([[1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0]])kmeans = KMeans(n_clusters=2, random_state=0)labels = kmeans.fit_predict(X) # 获得X中每个类的标签centers = kmeans.cluster_centers_ # 获得每个类的中心 以上。 参考链接 scikit-learn文本特征提取之TfidfVectorizer python scikit-learn计算tf-idf词语权重 sklearn.feature_extraction.text.TfidfVectorizer sklearn.cluster.KMeans]]></content>
@@ -16,7 +44,7 @@
   <entry>
     <title><![CDATA[python文本去重方法：simhash]]></title>
     <url>%2F2018%2F03%2F21%2Fpython%E6%96%87%E6%9C%AC%E5%8E%BB%E9%87%8D%E6%96%B9%E6%B3%95%EF%BC%9Asimhash%2F</url>
-    <content type="text"><![CDATA[simhash是google用来处理海量文本去重的算法。 simhash可以将一个文档转换成一个64位的字节，暂且称之为特征字。判断文档是否重复，只需要判断文档特征字之间的汉明距离。根据经验，一般当两个文档特征字之间的汉明距离小于3， 就可以判定两个文档相似。《数学之美》一书中，在讲述信息指纹时对这种算法有详细的介绍。 0x001、原理 分词，把需要判断文本分词形成这个文章的特征单词。最后形成去掉噪音词的单词序列并为每个词加上权重，我们假设权重分为5个级别（1~5）。比如：“ 美国“51区”雇员称内部有9架飞碟，曾看见灰色外星人 ” ==&gt; 分词后为 “ 美国（4） 51区（5） 雇员（3） 称（1） 内部（2） 有（1） 9架（3） 飞碟（5） 曾（1） 看见（3） 灰色（4） 外星人（5）”，括号里是代表单词在整个句子里重要程度，数字越大越重要。 hash，通过hash算法把每个词变成hash值，比如“美国”通过hash算法计算为 100101,“51区”通过hash算法计算为 101011。这样我们的字符串就变成了一串串数字，还记得文章开头说过的吗，要把文章变为数字计算才能提高相似度计算性能，现在是降维过程进行时。 加权，通过 2步骤的hash生成结果，需要按照单词的权重形成加权数字串，比如“美国”的hash值为“100101”，通过加权计算为“4 -4 -4 4 -4 4”；“51区”的hash值为“101011”，通过加权计算为 “ 5 -5 5 -5 5 5”。 合并，把上面各个单词算出来的序列值累加，变成只有一个序列串。比如 “美国”的 “4 -4 -4 4 -4 4”，“51区”的 “ 5 -5 5 -5 5 5”， 把每一位进行累加， “4+5 -4+-5 -4+5 4+-5 -4+5 4+5” ==》 “9 -9 1 -1 1 9”。这里作为示例只算了两个单词的，真实计算需要把所有单词的序列串累加。 降维，把4步算出来的 “9 -9 1 -1 1 9” 变成 0 1 串，形成我们最终的simhash签名。 如果每一位大于0 记为 1，小于0 记为 0。最后算出结果为：“1 0 1 0 1 1”。 以上算法描述引用自1。 0x002、python中的simhash包pip源中有数种simhash的实现，目前的工作中我使用的包就叫simhash，使用起来十分方便，直接使用pip就可以安装。 1pip install simhash 一个简单的演示： 1234567891011import refrom simhash import Simhashdef get_features(s): width = 3 s = s.lower() s = re.sub(r'[^\w]+', '', s) return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]print '%x' % Simhash(get_features('How are you? I am fine. Thanks.')).valueprint '%x' % Simhash(get_features('How are u? I am fine. Thanks.')).valueprint '%x' % Simhash(get_features('How r you?I am fine. Thanks.')).value 上面的代码中，get_features()是一个十分naive的用于提取特征的函数，以3个character为一个特征。相当于分词。Simhash()可以接收一个字符串，也可以接收一个列表。代码演示来自于2。 计算出来simhash之后，可以很方便地计算两个simhash之间的距离。 123from simhash import Simhashprint Simhash('aa').distance(Simhash('bb'))print Simhash('aa').distance(Simhash('aa')) 以上。]]></content>
+    <content type="text"><![CDATA[simhash是google用来处理海量文本去重的算法。 simhash可以将一个文档转换成一个64位的字节，暂且称之为特征字。判断文档是否重复，只需要判断文档特征字之间的汉明距离。根据经验，一般当两个文档特征字之间的汉明距离小于3， 就可以判定两个文档相似。《数学之美》一书中，在讲述信息指纹时对这种算法有详细的介绍。 0x001、原理 分词，把需要判断文本分词形成这个文章的特征单词。最后形成去掉噪音词的单词序列并为每个词加上权重，我们假设权重分为5个级别（1~5）。比如：“ 美国“51区”雇员称内部有9架飞碟，曾看见灰色外星人 ” ==&gt; 分词后为 “ 美国（4） 51区（5） 雇员（3） 称（1） 内部（2） 有（1） 9架（3） 飞碟（5） 曾（1） 看见（3） 灰色（4） 外星人（5）”，括号里是代表单词在整个句子里重要程度，数字越大越重要。 hash，通过hash算法把每个词变成hash值，比如“美国”通过hash算法计算为 100101,“51区”通过hash算法计算为 101011。这样我们的字符串就变成了一串串数字，还记得文章开头说过的吗，要把文章变为数字计算才能提高相似度计算性能，现在是降维过程进行时。 加权，通过 2步骤的hash生成结果，需要按照单词的权重形成加权数字串，比如“美国”的hash值为“100101”，通过加权计算为“4 -4 -4 4 -4 4”；“51区”的hash值为“101011”，通过加权计算为 “ 5 -5 5 -5 5 5”。 合并，把上面各个单词算出来的序列值累加，变成只有一个序列串。比如 “美国”的 “4 -4 -4 4 -4 4”，“51区”的 “ 5 -5 5 -5 5 5”， 把每一位进行累加， “4+5 -4+-5 -4+5 4+-5 -4+5 4+5” ==》 “9 -9 1 -1 1 9”。这里作为示例只算了两个单词的，真实计算需要把所有单词的序列串累加。 降维，把4步算出来的 “9 -9 1 -1 1 9” 变成 0 1 串，形成我们最终的simhash签名。 如果每一位大于0 记为 1，小于0 记为 0。最后算出结果为：“1 0 1 0 1 1”。 以上算法描述引用自1。 0x002、python中的simhash包pip源中有数种simhash的实现，目前的工作中我使用的包就叫simhash，使用起来十分方便，直接使用pip就可以安装。 1pip install simhash 一个简单的演示： 1234567891011import refrom simhash import Simhashdef get_features(s): width = 3 s = s.lower() s = re.sub(r'[^\w]+', '', s) return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]print('%x' % Simhash(get_features('How are you? I am fine. Thanks.')).value)print('%x' % Simhash(get_features('How are u? I am fine. Thanks.')).value)print('%x' % Simhash(get_features('How r you?I am fine. Thanks.')).value) 上面的代码中，get_features()是一个十分naive的用于提取特征的函数，以3个character为一个特征。相当于分词。Simhash()可以接收一个字符串，也可以接收一个列表。代码演示来自于2。 计算出来simhash之后，可以很方便地计算两个simhash之间的距离。 123from simhash import Simhashprint(Simhash('aa').distance(Simhash('bb')))print(Simhash('aa').distance(Simhash('aa'))) 以上。]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -61,9 +89,9 @@
       </categories>
       <tags>
         <tag>python</tag>
+        <tag>技巧</tag>
         <tag>defaultdict</tag>
         <tag>字典</tag>
-        <tag>技巧</tag>
       </tags>
   </entry>
   <entry>
