@@ -63,6 +63,10 @@
 <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
 
 
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
 
 
 
@@ -100,7 +104,7 @@
 </script>
 
   <meta name="description" content="首先需要导入示例数据，导入方法可以在上一篇笔记末尾找到。 从Python连接MongoDB（PyMongo）安装从Python同样可以很方便的管理MongoDB数据库，官方推荐的方法是安装PyMongo插件。安装过程很简单，直接pip一下就可以了。 1pip install pymongo  导入安装完成后，从pymongo中导入MongoClient类。 1from pymongo import">
-<meta name="keywords" content="数据库,mongodb,pymongo,python,入门学习笔记">
+<meta name="keywords" content="python,数据库,mongodb,pymongo,入门学习笔记">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pymongo入门学习笔记（二）">
 <meta property="og:url" content="https://styxjedi.github.io/2017/06/10/Pymongo入门学习笔记（二）/index.html">
@@ -547,6 +551,50 @@
     </div>
 
     
+      
+
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/14/Pymongo入门学习笔记（三）/" rel="bookmark">Pymongo入门学习笔记（三）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/09/Pymongo入门学习笔记（一）/" rel="bookmark">Pymongo入门学习笔记（一）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/16/Python日知录-快速创建对应多个值的字典/" rel="bookmark">Python日知录|快速创建对应多个值的字典</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/08/01/Python爬虫指归（一）/" rel="bookmark">Python爬虫指归（一）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2018/03/21/python文本去重方法：simhash/" rel="bookmark">python文本去重方法：simhash</a></div>
+      
+    </li>
+  
+  </ul>
+
+
+    
 
     
       
@@ -629,13 +677,13 @@
         
         <div class="post-tags">
           
+            <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
+          
             <a href="/tags/数据库/" rel="tag"><i class="fa fa-tag"></i> 数据库</a>
           
             <a href="/tags/mongodb/" rel="tag"><i class="fa fa-tag"></i> mongodb</a>
           
             <a href="/tags/pymongo/" rel="tag"><i class="fa fa-tag"></i> pymongo</a>
-          
-            <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
           
             <a href="/tags/入门学习笔记/" rel="tag"><i class="fa fa-tag"></i> 入门学习笔记</a>
           
@@ -1000,6 +1048,12 @@
     
 
     
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
 
     
   </div>
@@ -1079,6 +1133,13 @@
   
 
   
+  
+
+  
+  
+
+  
+
 
   
 
@@ -1486,6 +1547,26 @@ window.addEventListener("message", function(e) {
 
 
   
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+  <script>
+    
+    
+      flOptions = {};
+      
+        flOptions.iconStyle = "box";
+      
+        flOptions.boxForm = "horizontal";
+      
+        flOptions.position = "middleRight";
+      
+        flOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
 
   
 

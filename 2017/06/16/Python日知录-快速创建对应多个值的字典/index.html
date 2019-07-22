@@ -63,6 +63,10 @@
 <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
 
 
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
 
 
 
@@ -100,7 +104,7 @@
 </script>
 
   <meta name="description" content="经常会遇到这种情况，字典中的每个键需要对应的不仅仅是一个值，而是多个值。这种时候就需要将这些值封装到另一个数据结构中，比如列表或另一个字典。数据结构可能是这样的： 12345sample_dict = &amp;#123;	&apos;a&apos;: [1, 2, 3],	&apos;b&apos;: [2, 4, 6],	&apos;c&apos;: [3, 6, 9],&amp;#125;">
-<meta name="keywords" content="python,技巧,defaultdict,字典">
+<meta name="keywords" content="python,defaultdict,字典,技巧">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python日知录|快速创建对应多个值的字典">
 <meta property="og:url" content="https://styxjedi.github.io/2017/06/16/Python日知录-快速创建对应多个值的字典/index.html">
@@ -499,6 +503,50 @@
     </div>
 
     
+      
+
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/10/Pymongo入门学习笔记（二）/" rel="bookmark">Pymongo入门学习笔记（二）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/08/01/Python爬虫指归（一）/" rel="bookmark">Python爬虫指归（一）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2018/03/21/python文本去重方法：simhash/" rel="bookmark">python文本去重方法：simhash</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/14/Pymongo入门学习笔记（三）/" rel="bookmark">Pymongo入门学习笔记（三）</a></div>
+      
+    </li>
+  
+    <li class="popular-posts-item">
+      
+      
+      <div class="popular-posts-title"><a href="/2017/06/09/Pymongo入门学习笔记（一）/" rel="bookmark">Pymongo入门学习笔记（一）</a></div>
+      
+    </li>
+  
+  </ul>
+
+
+    
 
     
       
@@ -583,11 +631,11 @@
           
             <a href="/tags/python/" rel="tag"><i class="fa fa-tag"></i> python</a>
           
-            <a href="/tags/技巧/" rel="tag"><i class="fa fa-tag"></i> 技巧</a>
-          
             <a href="/tags/defaultdict/" rel="tag"><i class="fa fa-tag"></i> defaultdict</a>
           
             <a href="/tags/字典/" rel="tag"><i class="fa fa-tag"></i> 字典</a>
+          
+            <a href="/tags/技巧/" rel="tag"><i class="fa fa-tag"></i> 技巧</a>
           
         </div>
       
@@ -924,6 +972,12 @@
     
 
     
+      <div id="needsharebutton-float">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    
 
     
   </div>
@@ -1003,6 +1057,13 @@
   
 
   
+  
+
+  
+  
+
+  
+
 
   
 
@@ -1410,6 +1471,26 @@ window.addEventListener("message", function(e) {
 
 
   
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+  <script>
+    
+    
+      flOptions = {};
+      
+        flOptions.iconStyle = "box";
+      
+        flOptions.boxForm = "horizontal";
+      
+        flOptions.position = "middleRight";
+      
+        flOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-float', flOptions);
+    
+  </script>
+
 
   
 
