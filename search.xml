@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[论文阅读-跨语言多语任务型对话]]></title>
+    <url>%2Farchives%2Ff095e565.html</url>
+    <content type="text"><![CDATA[论文题目： Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog作者：Sebastian Schuster, Sonal Gupta, Rushin Shah, Mike Lewis发表情况：NAACL-HLT 2018引用：123456@inproceedings&#123;Schuster2018CrosslingualTL, title=&#123;Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog&#125;, author=&#123;Sebastian Schuster and Sonal Gupta and Rushin Shah and Mike Lewis&#125;, booktitle=&#123;NAACL-HLT&#125;, year=&#123;2018&#125;&#125; 1. 问题描述在AI对话系统中，首先要进行的工作往往是进行用户意图识别（intent detection）和槽语义识别（slot filling）。由于这项任务需要对大量对话语料进行标注，数据比较难获取。因此，借助高资源（high-resource）语言的语料去训练模型，然后将模型应用于低资源（low-resource）语言中，成为一种可行的方法。然而这种方法依赖多语训练语料。文章解决了两个问题：多语训练语料匮乏的问题；跨语言训练的方法问题。 2. 论文贡献构建了一个新的跨语言数据集，共有 57k 标注语料，包括英语（43k）、西班牙语（8.6k）和泰语（5k）三种语言；利用构建的数据集，验证了以下三种方法的效果：1，直接将高资源语言翻译为低资源语言进行训练；2，使用跨语言预训练词向量进行训练；3，提出一种新的跨语言编码器，用于获取输入序列中各个词语的上下文表示（contexual representation）。 3. 主要方法论文中使用的模型比较简单，如上图所示。不同训练策略的区别在于编码器所使用的数据和词向量，有以下几种：Target only：仅使用低资源语言数据；Target only with encoder embeddings：仅使用低资源语言数据，并使用预训练的编码器获得词向量；Translate train：使用Facebook机翻系统，将英语语料（高资源语言数据）翻译为低资源语言，然后结合原有的低资源语言数据进行训练，需要注意的是 slot 标注也通过注意力权重进行了映射；Cross-lingual with XLU embeddings：使用预训练跨语言词向量 MUSE，同时使用两种语言进行训练；Cross-lingual with encoder embeddings：使用预训练的编码器获得词向量，并同时使用两种语言同时进行训练。这里的 encoder embeddings，我的理解是类似于 ELMo，先使用一个预训练的编码器获取到输入序列中每个词语的向量，然后再将这些向量作为模型输入。论文中，除西语使用了ELMo外，还涉及其他三种模型：CoVe：McCann 等人 2017 年提出的方法，类似于2018年发表的 ELMo，CoVe 使用机器翻译进行预训练，然后将 Encoder 用于其他任务上；Multilingual CoVe：将预训练方式改变为多语预训练，具体来讲，若训练英语-西语预训练模型，预训练模型可以将英语翻译为西语，也可以将西语翻译为英语。翻译方向取决于解码器中与语言相关的初始token；Multilingual Cove with autoencoder：在Multilingual CoVe的基础上，编码器的输出可以为目标语言的翻译文本，也可以为源语言的原始句子。以英语-西语为例，模型可以将英语翻译为对应的西语，也可以输出英语原始句子；同样，模型也可以将西语翻译为英语，也可以输出西语原句。翻译方向还是取决与编码器的 init token。 4. 论文亮点论文提出的结合autoencoder的多语预训练方法比较新颖，不过现在我们有 Cross-lingual Language Model Pretraining 了；论文针对不同的训练策略进行了大量的分析。]]></content>
+      <categories>
+        <category>论文阅读</category>
+      </categories>
+      <tags>
+        <tag>论文</tag>
+        <tag>NLP</tag>
+        <tag>cross lingual</tag>
+        <tag>跨语言</tag>
+        <tag>对话系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[转载-Python多线程同步队列模型]]></title>
     <url>%2Farchives%2F54c8f1a6.html</url>
     <content type="text"><![CDATA[（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ）在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。原文如下：我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。这一个过程可以抽象成一个叫“同步队列”的模型。 具体来讲，有一个生产者（Dispatcher）一方面从语料中读入句子，并且存入队列中，一方面看有没有空闲的消费者（Segmentor），如果有，就把句子从队列中弹出并交给这个空闲的消费者处理。 然后消费者把处理完成的结果交给生产者输出，生产者要保证输出与输入顺序一致。消费者是典型的threading，它需要看见生成者的队列，从而从队列中拿一些数据。对于生产者，python中有一个叫Queue的module，实现了FIFO的同步队列。 但它只能保证输入与交付消费者的顺序的有序，但不能保障生产者在输出时有序，所以需要一个buffer来保存输出顺序。 程序的模型大概是这样的。有一个master()，用来分发任务。有N个多线程的slave用来处理任务。具体程序如下：12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061#!/usr/bin/env python# real 3m0.263s# user 0m0.016s# sys 0m0.012sfrom time import sleepfrom random import randomfrom queue import Queuefrom threading import Thread, Lockclass Segmentor(Thread): def __init__(self, dispatcher): Thread.__init__(self) self.d = dispatcher def run(self): while True: idx, item = self.d.get() # segment section sleep(random() * 5) # output section d.output( idx, item ) self.d.task_done()class Dispatcher(Queue): def __init__(self): Queue.__init__(self) self.idx = 0 self.box = &#123;&#125; self.lock = Lock() def output(self, idx, item): self.lock.acquire() if idx &gt; self.idx: self.box[idx] = item elif idx == self.idx: self._output(item) self.idx += 1 while self.idx in self.box: item = self.box[self.idx] self._output(item) self.idx += 1 self.lock.release() def _output(self, item): print(item)if __name__=="__main__": d = Dispatcher() for i in xrange(4): t = Segmentor(d) t.daemon = True t.start() num = 0 for line in open("data", "r"): d.put( (num, line.strip()) ) num += 1 d.join()在300句的条件下，单线程的处理速度约为750s=12m，开4个线程后3m可以处理完成，并且输出是有序的。其他语言应该可以仿照这个方式编写程序，对于没有同步队列的语言，实现时可以参考这个：http://hg.python.org/cpython/file/2.7/Lib/Queue.py]]></content>
@@ -8,8 +23,8 @@
         <category>Python</category>
       </categories>
       <tags>
-        <tag>Python</tag>
         <tag>NLP</tag>
+        <tag>Python</tag>
         <tag>多线程</tag>
         <tag>分词</tag>
       </tags>
@@ -89,9 +104,9 @@
       </categories>
       <tags>
         <tag>python</tag>
-        <tag>技巧</tag>
         <tag>defaultdict</tag>
         <tag>字典</tag>
+        <tag>技巧</tag>
       </tags>
   </entry>
   <entry>
@@ -102,10 +117,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
@@ -117,10 +132,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
@@ -132,10 +147,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
