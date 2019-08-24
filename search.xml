@@ -8,8 +8,8 @@
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>NLP</tag>
         <tag>论文</tag>
+        <tag>NLP</tag>
         <tag>跨语言</tag>
         <tag>词向量</tag>
         <tag>依存句法分析</tag>
@@ -24,8 +24,8 @@
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>NLP</tag>
         <tag>论文</tag>
+        <tag>NLP</tag>
         <tag>cross lingual</tag>
         <tag>跨语言</tag>
         <tag>对话系统</tag>
@@ -39,8 +39,8 @@
         <category>Python</category>
       </categories>
       <tags>
-        <tag>Python</tag>
         <tag>NLP</tag>
+        <tag>Python</tag>
         <tag>多线程</tag>
         <tag>分词</tag>
       </tags>
@@ -107,9 +107,9 @@
       </categories>
       <tags>
         <tag>python</tag>
+        <tag>技巧</tag>
         <tag>defaultdict</tag>
         <tag>字典</tag>
-        <tag>技巧</tag>
       </tags>
   </entry>
   <entry>
