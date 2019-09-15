@@ -10,8 +10,8 @@
       <tags>
         <tag>论文</tag>
         <tag>NLP</tag>
-        <tag>词向量</tag>
         <tag>跨语言</tag>
+        <tag>词向量</tag>
         <tag>依存句法分析</tag>
         <tag>Zero-shot</tag>
       </tags>
@@ -26,8 +26,8 @@
       <tags>
         <tag>论文</tag>
         <tag>NLP</tag>
-        <tag>跨语言</tag>
         <tag>cross lingual</tag>
+        <tag>跨语言</tag>
         <tag>对话系统</tag>
       </tags>
   </entry>
@@ -107,9 +107,9 @@
       </categories>
       <tags>
         <tag>python</tag>
+        <tag>技巧</tag>
         <tag>defaultdict</tag>
         <tag>字典</tag>
-        <tag>技巧</tag>
       </tags>
   </entry>
   <entry>
@@ -120,10 +120,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
@@ -135,10 +135,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
@@ -150,10 +150,10 @@
         <category>mongodb</category>
       </categories>
       <tags>
+        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
-        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
