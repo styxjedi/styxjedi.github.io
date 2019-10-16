@@ -3,7 +3,7 @@
   <entry>
     <title>斯坦福自然语言处理工具（Stanford CoreNLP）Python接口封装</title>
     <url>/archives/6331a207.html</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h2 id="Python-封装"><a href="#Python-封装" class="headerlink" title="Python 封装"></a>Python 封装</h2><p>Stanford CoreNLP 的网站中，<a href="https://stanfordnlp.github.io/CoreNLP/other-languages.html#python" target="_blank" rel="noopener">已经列举出许多种封装</a>。这些packages都是通过启动 Stanford CoreNLP server，然后向server发送请求，达到调用的目的。但这些包有的早已停止更新，不能同当前的版本（3.9.2）兼容，有的使用方法比较复杂，有的则确实一些关键性的功能（比如分句）。</p>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h2 id="Python-封装"><a href="#Python-封装" class="headerlink" title="Python 封装"></a>Python 封装</h2><p>Stanford CoreNLP 的网站中，<a href="https://stanfordnlp.github.io/CoreNLP/other-languages.html#python" target="_blank" rel="noopener">已经列举出许多种封装</a>。这些packages都是通过启动 Stanford CoreNLP server，然后向server发送请求，达到调用的目的。但这些包有的早已停止更新，不能同当前的版本（3.9.2）兼容，有的使用方法比较复杂，有的则缺失一些关键性的功能（比如分句）。</p>
 <p>为了解决上面这些问题，我对 <a href="https://github.com/Lynten/stanford-corenlp" target="_blank" rel="noopener">Lynten/stanford-corenlp</a> 的代码进行了维护，修正了一些bug。修改后的代码在原来的基础上，增加了：</p>
 <ul>
 <li>兼容Stanford CoreNLP最新版本（v3.9.2）</li>
