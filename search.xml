@@ -1,15 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[论文阅读-跨语言上下文词向量对齐]]></title>
-    <url>%2Farchives%2Fb42cdfce.html</url>
-    <content type="text"><![CDATA[这篇和跨语言多语任务型对话那篇都是跨语言相关的论文，作者都姓 Schuster，我还以为是同一个人来着……囧论文题目：Cross-Lingual Alignment of Contextual Word Embeddings, with Applications to Zero-shot Dependency Parsing作者：Tal Schuster, Ori Ram, Regina Barzilay, Amir Globerson发表情况：NAACL-HLT 2019公开代码：https://github.com/TalSchuster/CrossLingualELMo123456@inproceedings&#123;Schuster2019CrossLingualAO, title=&#123;Cross-Lingual Alignment of Contextual Word Embeddings, with Applications to Zero-shot Dependency Parsing&#125;, author=&#123;Tal Schuster and Ori Ram and Regina Barzilay and Amir Globerson&#125;, booktitle=&#123;NAACL-HLT&#125;, year=&#123;2019&#125;&#125;1. 问题背景上下文相关的词向量（contextual embedding），如 ELMo，相比于静态的词向量可以包含更多的语义信息。但对于一个词来说，其上下文相关词嵌入是动态的，随上下文的变化而改变。目前的方法，如 MUSE 可以将一种语言的向量空间映射到另一种语言的向量空间，但仅限于静态词向量。对于ELMo产生的上下文相关，目前则没有很好的跨语言迁移方法。2. 论文贡献提出了数种新的对上下文相关词向量进行跨语言映射的方法；将提出的方法应用到了多语依存句法分析任务中。3. 主要方法背景论文首先定义了锚点的概念。对于词语 $i$ 在上下文 $c$ 中的向量表示集合 $e_{i,c}$，锚点向量为其平均值，即：\bar{e}_i=\mathbb{E}_c[e_{i,c}]而向量空间对齐的方法，就是找到向量空间之间的映射矩阵，即：e_{i,c}^{s\to{t}}=W^{s\to{t}}e_{i,c}^s中的$W^{s\to{t}}$。观察作者首先对ELMo词向量进行了观察，发现基本存在两种情况：图1 经过PCA降维后的词向量点云图第一种，如图1所示，对于一个词语的所有词向量来说，其锚点向量大致处于点云中心。从直觉上，对于词语 $i$ 的锚点向量\bar{e}_i来说，它与向量 $e_{i,c}$的距离应当比与另一个词语 $j$ 的锚点向量 $\bar{e}_j$ 的距离近。实际统计结果符合这样的直觉，如下表所示。表1图2 同音异义词点云第二种，对于同音异义词来说，同一个词语点云可能较为分散。表1也表明，同音异义词之间的向量偏移（0.21）比其他词语之间略大，但相比于不同词语（0.85）仍然很小。所以，使用均值方法计算的锚点向量仍然可以作为一个词语点云的代表。方法在对上下文无关词向量（context-independent embeddings）进行跨语言映射时，存在有监督和无监督两种方法。有监督学习方法要求有一个从源语言 $s$ 到目标语言 $t$ 的对应词表 ${(e_i^s, e_i^t)}$ ，按照如下公式学习映射矩阵：\DeclareMathOperator*{\argmin}{arg\,min} W^{s\to{t}}=\argmin_{W\in O_d(\mathbb{R})}\sum_{i=1}^{n}\left\|We_i^s-e_i^t\right\|^2无监督方法不需要词表，MUSE首先使用对抗学习方法进行训练，使用判别器区分目标语言的向量和映射后的源语言向量；接着迭代地进行 refinement 过程，即迭代地利用现有的模型选取置信度较高的词语对构建词典，再利用构建好的词典重新学习映射矩阵。如下图所示：对于上下文相关词向量（context-dependent embeddings），论文提出了三种不同的对齐方法：有监督的锚点对齐：将锚点向量作为一个词语的词向量，应用上面所述的有监督学习方法进行学习；无监督的锚点对其：类似地，将锚点向量作为一个词语地词向量，应用上述无监督学习方法进行学习；无监督基于上下文地对齐：不适用锚点向量和词表，直接使用MUSE算法进行对齐学习；两种无监督方法均再对抗学习后使用了 refinement。此外，论文提出，对于低资源语言来说，可以现有数据较为稀疏，不足以训练一个语言模型（如ELMo）。这时，可以使用高资源语言和词语对齐表作为参照，帮助低资源语言的语言模型训练。假定有高资源语言 $t$ 和低资源语言 $s$，并且高资源语言 $t$ 已经有一个训练好的语言模型。对于词语 $i$，其在语言 $s$ 中的词向量为 $\boldsymbol{v}_i^s$，在目标语言中对应词与 $D(i)$。那么，在训练语言 $s$ 的语言模型时，加入以下正则项：\lambda_{anchor} \cdot \sum_i \left\| \boldsymbol{v}_i^s - \boldsymbol{v}_{D(i)}^t \right\|_2^2这里的\boldsymbol{v}_i^s为语言模型的输入向量，$ \lambda_{anchor} $ 是经验参数。加入正则项后，可以：防止模型过拟合，提供一定程度上的源语言和目标语言向量空间的对齐。4. 应用论文将提出的跨语言向量映射方法应用到依存句法分析上，应用方法为：将 ELMo 语言模型输出的向量使用映射矩阵映射到高资源语言的向量空间上将在高资源语言上训练获得的模型参数，共享到所有语言上。同样的方法也可以应用于其他任务。]]></content>
+    <title>斯坦福语言处理工具（Stanford CoreNLP）Python接口封装</title>
+    <url>/archives/6331a207.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h2 id="Python-封装"><a href="#Python-封装" class="headerlink" title="Python 封装"></a>Python 封装</h2><p>Stanford CoreNLP 的网站中，<a href="https://stanfordnlp.github.io/CoreNLP/other-languages.html#python" target="_blank" rel="noopener">已经列举出许多种封装</a>。这些packages都是通过启动 Stanford CoreNLP server，然后向server发送请求，达到调用的目的。但这些包有的早已停止更新，不能同当前的版本（3.9.2）兼容，有的使用方法比较复杂，有的则确实一些关键性的功能（比如分句）。</p>
+<p>为了解决上面这些问题，我对 <a href="https://github.com/Lynten/stanford-corenlp" target="_blank" rel="noopener">Lynten/stanford-corenlp</a> 的代码进行了维护，修正了一些bug。修改后的代码在原来的基础上，增加了：</p>
+<ul>
+<li>兼容Stanford CoreNLP最新版本（v3.9.2）</li>
+<li>分词方法<code>word_tokenize()</code>可以正常使用（原版本存在bug）</li>
+<li>增加了分句方法 <code>sent_split()</code></li>
+</ul>
+<p>代码地址为： <a href="https://github.com/styxjedi/stanford-corenlp" target="_blank" rel="noopener">https://github.com/styxjedi/stanford-corenlp</a></p>
+<p>如果在使用问题中遇到问题，可以在这个仓库中提 issue，我会尽快解决。</p>
+<a id="more"></a>
+<h2 id="安装方法"><a href="#安装方法" class="headerlink" title="安装方法"></a>安装方法</h2><h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><ul>
+<li>Java 1.8+ （检查版本： <code>java -version</code>） （<a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">下载页</a>）</li>
+<li>Stanford CoreNLP （<a href="https://stanfordnlp.github.io/CoreNLP/history.html" target="_blank" rel="noopener">下载页</a>）</li>
+</ul>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/styxjedi/stanford-corenlp.git</span><br><span class="line"><span class="built_in">cd</span> stanford-corenlp</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="默认处理英文"><a href="#默认处理英文" class="headerlink" title="默认处理英文"></a>默认处理英文</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> stanfordcorenlp <span class="keyword">import</span> StanfordCoreNLP</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将路径换成自己的</span></span><br><span class="line">nlp = StanfordCoreNLP(<span class="string">'G:\JavaLibraries\stanford-corenlp-full-2018-02-27'</span>)</span><br><span class="line"></span><br><span class="line">sentence = <span class="string">'Guangdong University of Foreign Studies is located in Guangzhou. It\' s a very beautiful university.'</span></span><br><span class="line">print(<span class="string">'Sentence Split:'</span>, nlp.sent_split(sentence))</span><br><span class="line">print(<span class="string">'Tokenize:'</span>, nlp.word_tokenize(sentence))</span><br><span class="line">print(<span class="string">'Part of Speech:'</span>, nlp.pos_tag(sentence))</span><br><span class="line">print(<span class="string">'Named Entities:'</span>, nlp.ner(sentence))</span><br><span class="line">print(<span class="string">'Constituency Parsing:'</span>, nlp.parse(sentence))</span><br><span class="line">print(<span class="string">'Dependency Parsing:'</span>, nlp.dependency_parse(sentence))</span><br><span class="line"></span><br><span class="line">nlp.close() <span class="comment"># Do not forget to close! The backend server will consume a lot memery.</span></span><br></pre></td></tr></table></figure>
+<h3 id="指定中文"><a href="#指定中文" class="headerlink" title="指定中文"></a>指定中文</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line">sentence = <span class="string">'清华大学位于北京。北京是中华人民共和国的首都。'</span></span><br><span class="line"><span class="keyword">with</span> StanfordCoreNLP(<span class="string">'path/to/your/model'</span>, lang=<span class="string">'zh'</span>) <span class="keyword">as</span> nlp:</span><br><span class="line">    print(nlp.sent_split(sentence))</span><br><span class="line">    print(nlp.word_tokenize(sentence))</span><br><span class="line">    print(nlp.pos_tag(sentence))</span><br><span class="line">    print(nlp.ner(sentence))</span><br><span class="line">    print(nlp.parse(sentence))</span><br><span class="line">    print(nlp.dependency_parse(sentence))</span><br></pre></td></tr></table></figure>
+<h2 id="Stanford-CoreNLP-简介"><a href="#Stanford-CoreNLP-简介" class="headerlink" title="Stanford CoreNLP 简介"></a>Stanford CoreNLP 简介</h2><p><strong>Note：</strong>本节内容引自 <a href="http://fancyerii.github.io/books/stanfordnlp/" target="_blank" rel="noopener">http://fancyerii.github.io/books/stanfordnlp/ </a>.</p>
+<p> <a href="https://stanfordnlp.github.io/CoreNLP/index.html" target="_blank" rel="noopener">Stanford CoreNLP</a>是Stanford NLP Group基于他们的科研工作开发的一套NLP工具。Stanford NLP组的成员来自语言学系和计算机系，它是Stanford AI实验室的一部分。注意，最近Stanford也基于Python开发了一套纯深度学习的工具<a href="https://stanfordnlp.github.io/stanfordnlp/" target="_blank" rel="noopener">Stanford NLP</a>。不过目前的版本还是0.2.0，还是属于比较早期的版本，而且很遗憾的是没有简体中文的支持(只有繁体中文)。 </p>
+<p>Stanford CoreNLP提供了一系列工具来处理人类的自然语言。它可以实现词干还原，标注词的词性。识别人名、地名、日期和时间等命名实体，同时还可以对它们进行归一化。对句子进行乘法句法分析和依存句法分析。还包括指代消解、情感分析和关系抽取等。</p>
+<p>它的特点是：</p>
+<ol>
+<li>一个集成多种工具的NLP工具集。</li>
+<li>快速稳定，经过十多年的迭代目前的版本已经是3.9.2 。</li>
+<li>使用最近的技术，整体的效果非常好。</li>
+<li>支持多种语言(包括中文)</li>
+<li>支持多种编程语言(通过Web Service的方式)</li>
+<li>可以独立作为一个Web服务运行</li>
+</ol>
+]]></content>
+      <categories>
+        <category>NLP Tools</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>NLP</tag>
+        <tag>Stanford CoreNLP</tag>
+        <tag>中文分词</tag>
+        <tag>中文分句</tag>
+        <tag>tokenize</tag>
+        <tag>parser</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>论文阅读-跨语言上下文词向量对齐</title>
+    <url>/archives/b42cdfce.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>这篇和<a href="https://styxjedi.github.io/archives/f095e565.html">跨语言多语任务型对话</a>那篇都是跨语言相关的论文，作者都姓 Schuster，我还以为是同一个人来着……囧</p>
+<blockquote>
+<p>论文题目：Cross-Lingual Alignment of Contextual Word Embeddings, with Applications to Zero-shot Dependency Parsing</p>
+<p>作者：Tal Schuster, Ori Ram, Regina Barzilay, Amir Globerson</p>
+<p>发表情况：NAACL-HLT 2019</p>
+<p>公开代码：<a href="https://github.com/TalSchuster/CrossLingualELMo" target="_blank" rel="noopener">https://github.com/TalSchuster/CrossLingualELMo</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@inproceedings&#123;Schuster2019CrossLingualAO,</span><br><span class="line">  title=&#123;Cross-Lingual Alignment of Contextual Word Embeddings, with Applications to Zero-shot Dependency Parsing&#125;,</span><br><span class="line">  author=&#123;Tal Schuster and Ori Ram and Regina Barzilay and Amir Globerson&#125;,</span><br><span class="line">  booktitle=&#123;NAACL-HLT&#125;,</span><br><span class="line">  year=&#123;2019&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="1-问题背景"><a href="#1-问题背景" class="headerlink" title="1. 问题背景"></a>1. 问题背景</h2><p>上下文相关的词向量（contextual embedding），如 ELMo，相比于静态的词向量可以包含更多的语义信息。但对于一个词来说，其上下文相关词嵌入是动态的，随上下文的变化而改变。目前的方法，如 <a href="https://arxiv.org/pdf/1710.04087.pdf" target="_blank" rel="noopener">MUSE</a> 可以将一种语言的向量空间映射到另一种语言的向量空间，但仅限于静态词向量。对于ELMo产生的上下文相关，目前则没有很好的跨语言迁移方法。</p>
+<a id="more"></a>
+<h2 id="2-论文贡献"><a href="#2-论文贡献" class="headerlink" title="2. 论文贡献"></a>2. 论文贡献</h2><ul>
+<li>提出了数种新的对上下文相关词向量进行跨语言映射的方法；</li>
+<li>将提出的方法应用到了多语依存句法分析任务中。</li>
+</ul>
+<h2 id="3-主要方法"><a href="#3-主要方法" class="headerlink" title="3. 主要方法"></a>3. 主要方法</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>论文首先定义了锚点的概念。对于词语 $i$ 在上下文 $c$ 中的向量表示集合 $e_{i,c}$，锚点向量为其平均值，即：</p>
+<script type="math/tex;mode=display">
+\bar{e}_i=\mathbb{E}_c[e_{i,c}]</script><p>而向量空间对齐的方法，就是找到向量空间之间的映射矩阵，即：</p>
+<script type="math/tex;mode=display">
+e_{i,c}^{s\to{t}}=W^{s\to{t}}e_{i,c}^s</script><p>中的$W^{s\to{t}}$。</p>
+<h3 id="观察"><a href="#观察" class="headerlink" title="观察"></a>观察</h3><p>作者首先对ELMo词向量进行了观察，发现基本存在两种情况：</p>
+<p><img src="/images/1564042093825.png" alt="point_clouds_1"></p>
+<p><center>图1 经过PCA降维后的词向量点云图</center><br>第一种，如图1所示，对于一个词语的所有词向量来说，其锚点向量大致处于点云中心。从直觉上，对于词语 $i$ 的锚点向量 <script type="math/tex">\bar{e}_i</script> 来说，它与向量 $e_{i,c}$的距离应当比与另一个词语 $j$ 的锚点向量 $\bar{e}_j$ 的距离近。实际统计结果符合这样的直觉，如下表所示。</p>
+<p><img src="/images/1564042516007.png" alt="cosint_distance_table"></p>
+<p><center> 表1 </center><br><img src="/images/1564042582625.png" alt="point_cloud_2"></p>
+<p><center>图2 同音异义词点云</center><br>第二种，对于同音异义词来说，同一个词语点云可能较为分散。表1也表明，同音异义词之间的向量偏移（0.21）比其他词语之间略大，但相比于不同词语（0.85）仍然很小。所以，使用均值方法计算的锚点向量仍然可以作为一个词语点云的代表。</p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>在对上下文无关词向量（context-independent embeddings）进行跨语言映射时，存在有监督和无监督两种方法。</p>
+<ol>
+<li><p>有监督学习方法要求有一个从源语言 $s$ 到目标语言 $t$ 的对应词表 ${(e_i^s, e_i^t)}$ ，按照如下公式学习映射矩阵：</p>
+<script type="math/tex;mode=display">
+\DeclareMathOperator*{\argmin}{arg\,min}
+W^{s\to{t}}=\argmin_{W\in O_d(\mathbb{R})}\sum_{i=1}^{n}\left\|We_i^s-e_i^t\right\|^2</script></li>
+<li><p>无监督方法不需要词表，MUSE首先使用对抗学习方法进行训练，使用判别器区分目标语言的向量和映射后的源语言向量；接着迭代地进行 <em>refinement</em> 过程，即迭代地利用现有的模型选取置信度较高的词语对构建词典，再利用构建好的词典重新学习映射矩阵。如下图所示：</p>
+</li>
+</ol>
+<p><img src="/images/outline_all.png" alt="MUSE"></p>
+<p>对于上下文相关词向量（context-dependent embeddings），论文提出了三种不同的对齐方法：</p>
+<ul>
+<li>有监督的锚点对齐：将锚点向量作为一个词语的词向量，应用上面所述的有监督学习方法进行学习；</li>
+<li>无监督的锚点对其：类似地，将锚点向量作为一个词语地词向量，应用上述无监督学习方法进行学习；</li>
+<li>无监督基于上下文地对齐：不适用锚点向量和词表，直接使用MUSE算法进行对齐学习；</li>
+</ul>
+<p>两种无监督方法均再对抗学习后使用了 <em>refinement</em>。</p>
+<p>此外，论文提出，对于低资源语言来说，可以现有数据较为稀疏，不足以训练一个语言模型（如ELMo）。这时，可以使用高资源语言和词语对齐表作为参照，帮助低资源语言的语言模型训练。假定有高资源语言 $t$ 和低资源语言 $s$，并且高资源语言 $t$ 已经有一个训练好的语言模型。对于词语 $i$，其在语言 $s$ 中的词向量为 $\boldsymbol{v}_i^s$，在目标语言中对应词与 $D(i)$。那么，在训练语言 $s$ 的语言模型时，加入以下正则项：</p>
+<script type="math/tex;mode=display">
+\lambda_{anchor} \cdot \sum_i \left\| \boldsymbol{v}_i^s - \boldsymbol{v}_{D(i)}^t \right\|_2^2</script><p>这里的 <script type="math/tex">\boldsymbol{v}_i^s</script> 为语言模型的输入向量，$ \lambda_{anchor} $ 是经验参数。加入正则项后，可以：</p>
+<ol>
+<li>防止模型过拟合，</li>
+<li>提供一定程度上的源语言和目标语言向量空间的对齐。</li>
+</ol>
+<h2 id="4-应用"><a href="#4-应用" class="headerlink" title="4. 应用"></a>4. 应用</h2><p>论文将提出的跨语言向量映射方法应用到依存句法分析上，应用方法为：</p>
+<ol>
+<li>将 ELMo 语言模型输出的向量使用映射矩阵映射到高资源语言的向量空间上</li>
+<li>将在高资源语言上训练获得的模型参数，共享到所有语言上。</li>
+</ol>
+<p>同样的方法也可以应用于其他任务。</p>
+]]></content>
       <categories>
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>论文</tag>
         <tag>NLP</tag>
+        <tag>论文</tag>
         <tag>词向量</tag>
         <tag>跨语言</tag>
         <tag>依存句法分析</tag>
@@ -17,24 +118,79 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[论文阅读-跨语言多语任务型对话]]></title>
-    <url>%2Farchives%2Ff095e565.html</url>
-    <content type="text"><![CDATA[论文题目： Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog作者：Sebastian Schuster, Sonal Gupta, Rushin Shah, Mike Lewis发表情况：NAACL-HLT 2018123456@inproceedings&#123;Schuster2018CrosslingualTL, title=&#123;Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog&#125;, author=&#123;Sebastian Schuster and Sonal Gupta and Rushin Shah and Mike Lewis&#125;, booktitle=&#123;NAACL-HLT&#125;, year=&#123;2018&#125;&#125;1. 问题描述在AI对话系统中，首先要进行的工作往往是进行用户意图识别（intent detection）和槽语义识别（slot filling）。由于这项任务需要对大量对话语料进行标注，数据比较难获取。因此，借助高资源（high-resource）语言的语料去训练模型，然后将模型应用于低资源（low-resource）语言中，成为一种可行的方法。然而这种方法依赖多语训练语料。文章解决了两个问题：多语训练语料匮乏的问题；跨语言训练的方法问题。2. 论文贡献构建了一个新的跨语言数据集，共有 57k 标注语料，包括英语（43k）、西班牙语（8.6k）和泰语（5k）三种语言；利用构建的数据集，验证了以下三种方法的效果：1，直接将高资源语言翻译为低资源语言进行训练；2，使用跨语言预训练词向量进行训练；3，提出一种新的跨语言编码器，用于获取输入序列中各个词语的上下文表示（contexual representation）。3. 主要方法论文中使用的模型比较简单，如上图所示。不同训练策略的区别在于编码器所使用的数据和词向量，有以下几种：Target only：仅使用低资源语言数据；Target only with encoder embeddings：仅使用低资源语言数据，并使用预训练的编码器获得词向量；Translate train：使用Facebook机翻系统，将英语语料（高资源语言数据）翻译为低资源语言，然后结合原有的低资源语言数据进行训练，需要注意的是 slot 标注也通过注意力权重进行了映射；Cross-lingual with XLU embeddings：使用预训练跨语言词向量 MUSE，同时使用两种语言进行训练；Cross-lingual with encoder embeddings：使用预训练的编码器获得词向量，并同时使用两种语言同时进行训练。这里的 encoder embeddings，我的理解是类似于 ELMo，先使用一个预训练的编码器获取到输入序列中每个词语的向量，然后再将这些向量作为模型输入。论文中，除西语使用了ELMo外，还涉及其他三种模型：CoVe：McCann 等人 2017 年提出的方法，类似于2018年发表的 ELMo，CoVe 使用机器翻译进行预训练，然后将 Encoder 用于其他任务上；Multilingual CoVe：将预训练方式改变为多语预训练，具体来讲，若训练英语-西语预训练模型，预训练模型可以将英语翻译为西语，也可以将西语翻译为英语。翻译方向取决于解码器中与语言相关的初始token；Multilingual Cove with autoencoder：在Multilingual CoVe的基础上，解码器的输出可以为目标语言的翻译文本，也可以为源语言的原始句子。以英语-西语为例，模型可以将英语翻译为对应的西语，也可以输出英语原始句子；同样，模型也可以将西语翻译为英语，也可以输出西语原句。翻译方向还是取决与解码器的 init token。需要注意的是，在使用XLU embeddings 和 encoder embeddings 时，论文将其与随机初始化的词语向量拼接作为模型输入的向量。在训练过程中，仅调整随机初始化的词向量部分。4. 论文亮点论文提出的结合autoencoder的多语预训练方法比较新颖，不过现在我们有 Cross-lingual Language Model Pretraining 了；论文针对不同的训练策略进行了大量的分析。]]></content>
+    <title>论文阅读-跨语言多语任务型对话</title>
+    <url>/archives/f095e565.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
+<p>论文题目： Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog</p>
+<p>作者：Sebastian Schuster, Sonal Gupta, Rushin Shah, Mike Lewis</p>
+<p>发表情况：NAACL-HLT 2018</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@inproceedings&#123;Schuster2018CrosslingualTL,</span><br><span class="line">  title=&#123;Cross-lingual Transfer Learning for Multilingual Task Oriented Dialog&#125;,</span><br><span class="line">  author=&#123;Sebastian Schuster and Sonal Gupta and Rushin Shah and Mike Lewis&#125;,</span><br><span class="line">  booktitle=&#123;NAACL-HLT&#125;,</span><br><span class="line">  year=&#123;2018&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><p>在AI对话系统中，首先要进行的工作往往是进行用户意图识别（intent detection）和槽语义识别（slot filling）。由于这项任务需要对大量对话语料进行标注，数据比较难获取。因此，借助高资源（high-resource）语言的语料去训练模型，然后将模型应用于低资源（low-resource）语言中，成为一种可行的方法。然而这种方法依赖多语训练语料。文章解决了两个问题：</p>
+<ul>
+<li><p>多语训练语料匮乏的问题；</p>
+</li>
+<li><p>跨语言训练的方法问题。</p>
+</li>
+</ul>
+<a id="more"></a>
+<h2 id="2-论文贡献"><a href="#2-论文贡献" class="headerlink" title="2. 论文贡献"></a>2. 论文贡献</h2><ul>
+<li>构建了一个新的跨语言数据集，共有 57k 标注语料，包括英语（43k）、西班牙语（8.6k）和泰语（5k）三种语言；</li>
+<li>利用构建的数据集，验证了以下三种方法的效果：<ul>
+<li>1，直接将高资源语言翻译为低资源语言进行训练；</li>
+<li>2，使用跨语言预训练词向量进行训练；</li>
+<li>3，提出一种新的跨语言编码器，用于获取输入序列中各个词语的上下文表示（contexual representation）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-主要方法"><a href="#3-主要方法" class="headerlink" title="3. 主要方法"></a>3. 主要方法</h2><p><img src="/images/1563957469178.png" alt="模型架构"></p>
+<p>论文中使用的模型比较简单，如上图所示。不同训练策略的区别在于编码器所使用的数据和词向量，有以下几种：</p>
+<ul>
+<li>Target only：仅使用低资源语言数据；</li>
+<li>Target only with encoder embeddings：仅使用低资源语言数据，并使用预训练的编码器获得词向量；</li>
+<li>Translate train：使用Facebook机翻系统，将英语语料（高资源语言数据）翻译为低资源语言，然后结合原有的低资源语言数据进行训练，需要注意的是 slot 标注也通过注意力权重进行了映射；</li>
+<li>Cross-lingual with XLU embeddings：使用预训练跨语言词向量 <a href="https://github.com/facebookresearch/MUSE" target="_blank" rel="noopener">MUSE</a>，同时使用两种语言进行训练；</li>
+<li>Cross-lingual with encoder embeddings：使用预训练的编码器获得词向量，并同时使用两种语言同时进行训练。</li>
+</ul>
+<p>这里的 encoder embeddings，我的理解是类似于 ELMo，先使用一个预训练的编码器获取到输入序列中每个词语的向量，然后再将这些向量作为模型输入。论文中，除西语使用了ELMo外，还涉及其他三种模型：</p>
+<ul>
+<li>CoVe：McCann 等人 <a href="https://arxiv.org/pdf/1708.00107.pdf" target="_blank" rel="noopener">2017 年</a>提出的方法，类似于2018年发表的 ELMo，CoVe 使用机器翻译进行预训练，然后将 Encoder 用于其他任务上；</li>
+<li>Multilingual CoVe：将预训练方式改变为多语预训练，具体来讲，若训练英语-西语预训练模型，预训练模型可以将英语翻译为西语，也可以将西语翻译为英语。翻译方向取决于解码器中与语言相关的初始token；</li>
+<li>Multilingual Cove with autoencoder：在Multilingual CoVe的基础上，解码器的输出可以为目标语言的翻译文本，也可以为源语言的原始句子。以英语-西语为例，模型可以将英语翻译为对应的西语，也可以输出英语原始句子；同样，模型也可以将西语翻译为英语，也可以输出西语原句。翻译方向还是取决与解码器的 init token。</li>
+</ul>
+<p>需要注意的是，在使用XLU embeddings 和 encoder embeddings 时，论文将其与随机初始化的词语向量拼接作为模型输入的向量。在训练过程中，仅调整随机初始化的词向量部分。</p>
+<h2 id="4-论文亮点"><a href="#4-论文亮点" class="headerlink" title="4. 论文亮点"></a>4. 论文亮点</h2><ul>
+<li>论文提出的结合autoencoder的多语预训练方法比较新颖，不过现在我们有 <a href="https://arxiv.org/abs/1901.07291" target="_blank" rel="noopener">Cross-lingual Language Model Pretraining</a> 了；</li>
+<li>论文针对不同的训练策略进行了大量的分析。</li>
+</ul>
+]]></content>
       <categories>
         <category>论文阅读</category>
       </categories>
       <tags>
-        <tag>论文</tag>
         <tag>NLP</tag>
+        <tag>论文</tag>
         <tag>跨语言</tag>
         <tag>cross lingual</tag>
         <tag>对话系统</tag>
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[转载-Python多线程同步队列模型]]></title>
-    <url>%2Farchives%2F54c8f1a6.html</url>
-    <content type="text"><![CDATA[（本文转载自 Static Oneplus 不可控制论 ,原文链接：Python 多线程同步队列模型 ）在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。原文如下：我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。这一个过程可以抽象成一个叫“同步队列”的模型。 具体来讲，有一个生产者（Dispatcher）一方面从语料中读入句子，并且存入队列中，一方面看有没有空闲的消费者（Segmentor），如果有，就把句子从队列中弹出并交给这个空闲的消费者处理。 然后消费者把处理完成的结果交给生产者输出，生产者要保证输出与输入顺序一致。消费者是典型的threading，它需要看见生成者的队列，从而从队列中拿一些数据。对于生产者，python中有一个叫Queue的module，实现了FIFO的同步队列。 但它只能保证输入与交付消费者的顺序的有序，但不能保障生产者在输出时有序，所以需要一个buffer来保存输出顺序。 程序的模型大概是这样的。有一个master()，用来分发任务。有N个多线程的slave用来处理任务。具体程序如下：12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061#!/usr/bin/env python# real 3m0.263s# user 0m0.016s# sys 0m0.012sfrom time import sleepfrom random import randomfrom queue import Queuefrom threading import Thread, Lockclass Segmentor(Thread): def __init__(self, dispatcher): Thread.__init__(self) self.d = dispatcher def run(self): while True: idx, item = self.d.get() # segment section sleep(random() * 5) # output section d.output( idx, item ) self.d.task_done()class Dispatcher(Queue): def __init__(self): Queue.__init__(self) self.idx = 0 self.box = &#123;&#125; self.lock = Lock() def output(self, idx, item): self.lock.acquire() if idx &gt; self.idx: self.box[idx] = item elif idx == self.idx: self._output(item) self.idx += 1 while self.idx in self.box: item = self.box[self.idx] self._output(item) self.idx += 1 self.lock.release() def _output(self, item): print(item)if __name__=="__main__": d = Dispatcher() for i in xrange(4): t = Segmentor(d) t.daemon = True t.start() num = 0 for line in open("data", "r"): d.put( (num, line.strip()) ) num += 1 d.join()在300句的条件下，单线程的处理速度约为750s=12m，开4个线程后3m可以处理完成，并且输出是有序的。其他语言应该可以仿照这个方式编写程序，对于没有同步队列的语言，实现时可以参考这个：http://hg.python.org/cpython/file/2.7/Lib/Queue.py]]></content>
+    <title>转载-Python多线程同步队列模型</title>
+    <url>/archives/54c8f1a6.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>（本文转载自 <a href="http://yjliu.net/" target="_blank" rel="noopener">Static Oneplus 不可控制论</a> ,原文链接：<a href="http://yjliu.net/notes/2013/04/17/python-queue-thread-model.html" target="_blank" rel="noopener">Python 多线程同步队列模型</a> ）</p>
+<p>在处理大规模语料时，经常会遇到的一种情况是希望进行多线程处理，并且希望输出是有序的。比如需要保留篇章结构的分词。原文提供了一种“同步队列”模型的思路，解决了在多线程处理时保持输出结果有序的问题。</p>
+<p>原文如下：</p>
+<p>我面临的问题是有个非常慢的处理逻辑（比如分词、句法），有大量的语料，想用多线程来处理。</p>
+<p>这一个过程可以抽象成一个叫“同步队列”的模型。 具体来讲，有一个生产者（Dispatcher）一方面从语料中读入句子，并且存入队列中，一方面看有没有空闲的消费者（Segmentor），如果有，就把句子从队列中弹出并交给这个空闲的消费者处理。 然后消费者把处理完成的结果交给生产者输出，生产者要保证输出与输入顺序一致。</p>
+<a id="more"></a>
+<p>消费者是典型的threading，它需要看见生成者的队列，从而从队列中拿一些数据。</p>
+<p>对于生产者，python中有一个叫Queue的module，实现了FIFO的同步队列。 但它只能保证输入与交付消费者的顺序的有序，但不能保障生产者在输出时有序，所以需要一个buffer来保存输出顺序。 程序的模型大概是这样的。有一个master()，用来分发任务。有N个多线程的slave用来处理任务。</p>
+<p>具体程序如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># real    3m0.263s</span></span><br><span class="line"><span class="comment"># user    0m0.016s</span></span><br><span class="line"><span class="comment"># sys     0m0.012s</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> queue <span class="keyword">import</span> Queue</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Thread, Lock</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Segmentor</span><span class="params">(Thread)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, dispatcher)</span>:</span></span><br><span class="line">        Thread.__init__(self)</span><br><span class="line">        self.d = dispatcher</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            idx, item = self.d.get()</span><br><span class="line">            <span class="comment"># segment section</span></span><br><span class="line">            sleep(random() * <span class="number">5</span>)</span><br><span class="line">            <span class="comment"># output section</span></span><br><span class="line">            d.output( idx, item )</span><br><span class="line">            self.d.task_done()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dispatcher</span><span class="params">(Queue)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        Queue.__init__(self)</span><br><span class="line">        self.idx = <span class="number">0</span></span><br><span class="line">        self.box = &#123;&#125;</span><br><span class="line">        self.lock = Lock()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">output</span><span class="params">(self, idx, item)</span>:</span></span><br><span class="line">        self.lock.acquire()</span><br><span class="line">        <span class="keyword">if</span> idx &gt; self.idx:</span><br><span class="line">            self.box[idx] = item</span><br><span class="line">        <span class="keyword">elif</span> idx == self.idx:</span><br><span class="line">            self._output(item)</span><br><span class="line">            self.idx += <span class="number">1</span></span><br><span class="line">            <span class="keyword">while</span> self.idx <span class="keyword">in</span> self.box:</span><br><span class="line">                item = self.box[self.idx]</span><br><span class="line">                self._output(item)</span><br><span class="line">                self.idx += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        self.lock.release()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_output</span><span class="params">(self, item)</span>:</span></span><br><span class="line">        print(item)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">"__main__"</span>:</span><br><span class="line">    d = Dispatcher()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">4</span>):</span><br><span class="line">        t = Segmentor(d)</span><br><span class="line">        t.daemon = <span class="literal">True</span></span><br><span class="line">        t.start()</span><br><span class="line"></span><br><span class="line">    num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">"data"</span>, <span class="string">"r"</span>):</span><br><span class="line">        d.put( (num, line.strip()) )</span><br><span class="line">        num += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    d.join()</span><br></pre></td></tr></table></figure>
+<p>在300句的条件下，单线程的处理速度约为750s=12m，开4个线程后3m可以处理完成，并且输出是有序的。</p>
+<p>其他语言应该可以仿照这个方式编写程序，对于没有同步队列的语言，实现时可以参考这个：<a href="http://hg.python.org/cpython/file/2.7/Lib/Queue.py" target="_blank" rel="noopener">http://hg.python.org/cpython/file/2.7/Lib/Queue.py</a></p>
+]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -46,9 +202,19 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[解决Ubuntu18.04系统无声音问题]]></title>
-    <url>%2Farchives%2Ff601f13d.html</url>
-    <content type="text"><![CDATA[1. 问题描述Ubuntu18.04系统有个必现的bug，并且会影响到基于该系统的Linux Mint 19.1。首先用 HDMI 线连接电视机或大屏幕，然后在“设置—&gt;声音”里面选择音频输出设备为 HDMI 设备，然后拔掉 HDMI 线，这时候系统就没有声音了。2. 问题解决解决方法并不复杂，使用 pavucontrol 软件设置一下就好了。在终端中输入：123sudo apt-get updatesudo apt-get install pavucontrolpavucontrol在打开的窗口中将“配置—&gt;内置音频—&gt;侧写”的配置改为无，系统就又有声音了。参考链接ubuntu18.04 切换音频输出设备然后拔掉hdmi线，系统无声音]]></content>
+    <title>解决Ubuntu18.04系统无声音问题</title>
+    <url>/archives/f601f13d.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h2 id="1-问题描述"><a href="#1-问题描述" class="headerlink" title="1. 问题描述"></a>1. 问题描述</h2><p>Ubuntu18.04系统有个必现的bug，并且会影响到基于该系统的Linux Mint 19.1。</p>
+<p>首先用 HDMI 线连接电视机或大屏幕，然后在“设置—&gt;声音”里面选择音频输出设备为 HDMI 设备，然后拔掉 HDMI 线，这时候系统就没有声音了。</p>
+<a id="more"></a>
+<h2 id="2-问题解决"><a href="#2-问题解决" class="headerlink" title="2. 问题解决"></a>2. 问题解决</h2><p>解决方法并不复杂，使用 pavucontrol 软件设置一下就好了。</p>
+<p>在终端中输入：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install pavucontrol</span><br><span class="line">pavucontrol</span><br></pre></td></tr></table></figure>
+<p>在打开的窗口中将“配置—&gt;内置音频—&gt;侧写”的配置改为无，系统就又有声音了。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="https://forum.ubuntu.org.cn/viewtopic.php?f=187&amp;t=487669&amp;sid=668106a3c3503d099a4cc2fdc248fe3b" target="_blank" rel="noopener">ubuntu18.04 切换音频输出设备然后拔掉hdmi线，系统无声音</a></li>
+</ol>
+]]></content>
       <categories>
         <category>Linux</category>
       </categories>
@@ -60,9 +226,30 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[scikit-learn应用：基于K-means的新闻聚类]]></title>
-    <url>%2Farchives%2F767f2dc4.html</url>
-    <content type="text"><![CDATA[要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。0x001、预处理：分词、去停用词这里使用比较简单的jieba分词库进行分词。对每篇文章分词后，将出现在停用词表中的词删除。在分词之前，为了提高分词精确度，可以导入自定义词库。清华大学中文分词库：THUOCL在Github上找到一份停用词表：goto456/stopwords1234import jiebajieba.load_userdict('path/to/dict') # 导入用户词典doc = '今天天气真好。'data = jieba.lcut(doc) # 分词并返回list格式0x002、基于TF-IDF的特征向量分词之后，每个词的TF-IDF值可以看作这个词的权重。依照权重逆序排列之后，前n个词可以看做n个特征。那么对于每个文档，就可以得到一个n维的特征向量。这个过程可以调用sklearn的API实现，非常方便。12345678910from sklearn.feature_extraction.text import TfidfVectorizer# 将分词结果放入列表中：corpus=["我 来到 北京 清华大学",#第一类文本切词后的结果，词之间以空格隔开 "他 来到 了 网易 杭研 大厦",#第二类文本的切词结果 "小明 硕士 毕业 与 中国 科学院",#第三类文本的切词结果 "我 爱 北京 天安门"]#第四类文本的切词结果 vectorizer = TfidfVectorizer(max_features=20) # max_features设置最多提取几个特征data = vectorizer.fit_transform(vectorizer) # 训练并将corpus中的文档逐条转成特征向量# 可以通过 vectorizer.get_features()获得特征词# 可以通过 data.toarray()获得numpy.array格式的特征向量0x003、基于K-means的文本聚类同样的，这里直接调用sklearn的API实现。示例如下：123456from sklearn.cluster import KMeansX = np.array([[1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0]])kmeans = KMeans(n_clusters=2, random_state=0)labels = kmeans.fit_predict(X) # 获得X中每个类的标签centers = kmeans.cluster_centers_ # 获得每个类的中心以上。参考链接scikit-learn文本特征提取之TfidfVectorizerpython scikit-learn计算tf-idf词语权重sklearn.feature_extraction.text.TfidfVectorizersklearn.cluster.KMeans]]></content>
+    <title>scikit-learn应用：基于K-means的新闻聚类</title>
+    <url>/archives/767f2dc4.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>要对新闻文本进行聚类，首先要将每一篇新闻都表示成向量的形式。这里使用的方法是提取文本中的特征词，然后将每篇文档表示成一个特征向量。提取特征的方式有很多，这里选取最简单的基于TF-IDF的方法。对新闻文本进行分词、去停用词后，计算每个词的TF-IDF值，依据该值提取特征，并获得每篇文档的特征向量。接下来对流程进行详细描述。</p>
+<a id="more"></a>
+<h2 id="0x001、预处理：分词、去停用词"><a href="#0x001、预处理：分词、去停用词" class="headerlink" title="0x001、预处理：分词、去停用词"></a>0x001、预处理：分词、去停用词</h2><p>这里使用比较简单的jieba分词库进行分词。对每篇文章分词后，将出现在停用词表中的词删除。</p>
+<ul>
+<li>在分词之前，为了提高分词精确度，可以导入自定义词库。</li>
+<li>清华大学中文分词库：<a href="http://thuocl.thunlp.org" target="_blank" rel="noopener">THUOCL</a></li>
+<li>在Github上找到一份停用词表：<a href="https://github.com/goto456/stopwords" target="_blank" rel="noopener">goto456/stopwords</a></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line">jieba.load_userdict(<span class="string">'path/to/dict'</span>) <span class="comment"># 导入用户词典</span></span><br><span class="line">doc = <span class="string">'今天天气真好。'</span></span><br><span class="line">data = jieba.lcut(doc) <span class="comment"># 分词并返回list格式</span></span><br></pre></td></tr></table></figure>
+<h2 id="0x002、基于TF-IDF的特征向量"><a href="#0x002、基于TF-IDF的特征向量" class="headerlink" title="0x002、基于TF-IDF的特征向量"></a>0x002、基于TF-IDF的特征向量</h2><p>分词之后，每个词的TF-IDF值可以看作这个词的权重。依照权重逆序排列之后，前n个词可以看做n个特征。那么对于每个文档，就可以得到一个n维的特征向量。</p>
+<p>这个过程可以调用sklearn的API实现，非常方便。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer</span><br><span class="line"><span class="comment"># 将分词结果放入列表中：</span></span><br><span class="line">corpus=[<span class="string">"我 来到 北京 清华大学"</span>,<span class="comment">#第一类文本切词后的结果，词之间以空格隔开  </span></span><br><span class="line">        <span class="string">"他 来到 了 网易 杭研 大厦"</span>,<span class="comment">#第二类文本的切词结果  </span></span><br><span class="line">        <span class="string">"小明 硕士 毕业 与 中国 科学院"</span>,<span class="comment">#第三类文本的切词结果  </span></span><br><span class="line">        <span class="string">"我 爱 北京 天安门"</span>]<span class="comment">#第四类文本的切词结果 </span></span><br><span class="line">vectorizer = TfidfVectorizer(max_features=<span class="number">20</span>) <span class="comment"># max_features设置最多提取几个特征</span></span><br><span class="line">data = vectorizer.fit_transform(vectorizer) <span class="comment"># 训练并将corpus中的文档逐条转成特征向量</span></span><br><span class="line"><span class="comment"># 可以通过 vectorizer.get_features()获得特征词</span></span><br><span class="line"><span class="comment"># 可以通过 data.toarray()获得numpy.array格式的特征向量</span></span><br></pre></td></tr></table></figure>
+<h2 id="0x003、基于K-means的文本聚类"><a href="#0x003、基于K-means的文本聚类" class="headerlink" title="0x003、基于K-means的文本聚类"></a>0x003、基于K-means的文本聚类</h2><p>同样的，这里直接调用sklearn的API实现。示例如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.cluster <span class="keyword">import</span> KMeans</span><br><span class="line">X = np.array([[<span class="number">1</span>, <span class="number">2</span>], [<span class="number">1</span>, <span class="number">4</span>], [<span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">              [<span class="number">4</span>, <span class="number">2</span>], [<span class="number">4</span>, <span class="number">4</span>], [<span class="number">4</span>, <span class="number">0</span>]])</span><br><span class="line">kmeans = KMeans(n_clusters=<span class="number">2</span>, random_state=<span class="number">0</span>)</span><br><span class="line">labels = kmeans.fit_predict(X) <span class="comment"># 获得X中每个类的标签</span></span><br><span class="line">centers = kmeans.cluster_centers_ <span class="comment"># 获得每个类的中心</span></span><br></pre></td></tr></table></figure>
+<p>以上。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ol>
+<li><a href="http://blog.csdn.net/ixuhangyi/article/details/51820328" target="_blank" rel="noopener">scikit-learn文本特征提取之TfidfVectorizer</a></li>
+<li><a href="http://blog.csdn.net/liuxuejiang158blog/article/details/31360765" target="_blank" rel="noopener">python scikit-learn计算tf-idf词语权重</a></li>
+<li><a href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html" target="_blank" rel="noopener">sklearn.feature_extraction.text.TfidfVectorizer</a></li>
+<li><a href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html" target="_blank" rel="noopener">sklearn.cluster.KMeans</a></li>
+</ol>
+]]></content>
       <categories>
         <category>机器学习</category>
       </categories>
@@ -73,9 +260,30 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[python文本去重方法：simhash]]></title>
-    <url>%2Farchives%2F4f20e829.html</url>
-    <content type="text"><![CDATA[simhash是google用来处理海量文本去重的算法。 simhash可以将一个文档转换成一个64位的字节，暂且称之为特征字。判断文档是否重复，只需要判断文档特征字之间的汉明距离。根据经验，一般当两个文档特征字之间的汉明距离小于3， 就可以判定两个文档相似。《数学之美》一书中，在讲述信息指纹时对这种算法有详细的介绍。0x001、原理分词，把需要判断文本分词形成这个文章的特征单词。最后形成去掉噪音词的单词序列并为每个词加上权重，我们假设权重分为5个级别（1~5）。比如：“ 美国“51区”雇员称内部有9架飞碟，曾看见灰色外星人 ” ==&gt; 分词后为 “ 美国（4） 51区（5） 雇员（3） 称（1） 内部（2） 有（1） 9架（3） 飞碟（5） 曾（1） 看见（3） 灰色（4） 外星人（5）”，括号里是代表单词在整个句子里重要程度，数字越大越重要。hash，通过hash算法把每个词变成hash值，比如“美国”通过hash算法计算为 100101,“51区”通过hash算法计算为 101011。这样我们的字符串就变成了一串串数字，还记得文章开头说过的吗，要把文章变为数字计算才能提高相似度计算性能，现在是降维过程进行时。加权，通过 2步骤的hash生成结果，需要按照单词的权重形成加权数字串，比如“美国”的hash值为“100101”，通过加权计算为“4 -4 -4 4 -4 4”；“51区”的hash值为“101011”，通过加权计算为 “ 5 -5 5 -5 5 5”。合并，把上面各个单词算出来的序列值累加，变成只有一个序列串。比如 “美国”的 “4 -4 -4 4 -4 4”，“51区”的 “ 5 -5 5 -5 5 5”， 把每一位进行累加， “4+5 -4+-5 -4+5 4+-5 -4+5 4+5” ==》 “9 -9 1 -1 1 9”。这里作为示例只算了两个单词的，真实计算需要把所有单词的序列串累加。降维，把4步算出来的 “9 -9 1 -1 1 9” 变成 0 1 串，形成我们最终的simhash签名。 如果每一位大于0 记为 1，小于0 记为 0。最后算出结果为：“1 0 1 0 1 1”。以上算法描述引用自1。0x002、python中的simhash包pip源中有数种simhash的实现，目前的工作中我使用的包就叫simhash，使用起来十分方便，直接使用pip就可以安装。1pip install simhash一个简单的演示：1234567891011import refrom simhash import Simhashdef get_features(s): width = 3 s = s.lower() s = re.sub(r'[^\w]+', '', s) return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]print('%x' % Simhash(get_features('How are you? I am fine. Thanks.')).value)print('%x' % Simhash(get_features('How are u? I am fine. Thanks.')).value)print('%x' % Simhash(get_features('How r you?I am fine. Thanks.')).value)上面的代码中，get_features()是一个十分naive的用于提取特征的函数，以3个character为一个特征。相当于分词。Simhash()可以接收一个字符串，也可以接收一个列表。代码演示来自于2。计算出来simhash之后，可以很方便地计算两个simhash之间的距离。123from simhash import Simhashprint(Simhash('aa').distance(Simhash('bb')))print(Simhash('aa').distance(Simhash('aa')))以上。]]></content>
+    <title>python文本去重方法：simhash</title>
+    <url>/archives/4f20e829.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>simhash是google用来处理海量文本去重的算法。 simhash可以将一个文档转换成一个64位的字节，暂且称之为特征字。判断文档是否重复，只需要判断文档特征字之间的汉明距离。根据经验，一般当两个文档特征字之间的汉明距离小于3， 就可以判定两个文档相似。《数学之美》一书中，在讲述信息指纹时对这种算法有详细的介绍。</p>
+<a id="more"></a>
+<h2 id="0x001、原理"><a href="#0x001、原理" class="headerlink" title="0x001、原理"></a>0x001、原理</h2><p><img src="/images/simhash.jpg" alt="simhash"></p>
+<blockquote>
+<ol>
+<li>分词，把需要判断文本分词形成这个文章的特征单词。最后形成去掉噪音词的单词序列并为每个词加上权重，我们假设权重分为5个级别（1~5）。比如：“ 美国“51区”雇员称内部有9架飞碟，曾看见灰色外星人 ” ==&gt; 分词后为 “ 美国（4） 51区（5） 雇员（3） 称（1） 内部（2） 有（1） 9架（3） 飞碟（5） 曾（1） 看见（3） 灰色（4） 外星人（5）”，括号里是代表单词在整个句子里重要程度，数字越大越重要。</li>
+<li>hash，通过hash算法把每个词变成hash值，比如“美国”通过hash算法计算为 100101,“51区”通过hash算法计算为 101011。这样我们的字符串就变成了一串串数字，还记得文章开头说过的吗，要把文章变为数字计算才能提高相似度计算性能，现在是降维过程进行时。</li>
+<li>加权，通过 2步骤的hash生成结果，需要按照单词的权重形成加权数字串，比如“美国”的hash值为“100101”，通过加权计算为“4 -4 -4 4 -4 4”；“51区”的hash值为“101011”，通过加权计算为 “ 5 -5 5 -5 5 5”。</li>
+<li>合并，把上面各个单词算出来的序列值累加，变成只有一个序列串。比如 “美国”的 “4 -4 -4 4 -4 4”，“51区”的 “ 5 -5 5 -5 5 5”， 把每一位进行累加， “4+5 -4+-5 -4+5 4+-5 -4+5 4+5” ==》 “9 -9 1 -1 1 9”。这里作为示例只算了两个单词的，真实计算需要把所有单词的序列串累加。</li>
+<li>降维，把4步算出来的 “9 -9 1 -1 1 9” 变成 0 1 串，形成我们最终的simhash签名。 如果每一位大于0 记为 1，小于0 记为 0。最后算出结果为：“1 0 1 0 1 1”。</li>
+</ol>
+</blockquote>
+<p>以上算法描述引用自<a href="http://www.lanceyan.com/tech/arch/simhash_hamming_distance_similarity.html" title="海量数据相似度计算之simhash和海明距离" target="_blank" rel="noopener"><a href="http://www.lanceyan.com/tech/arch/simhash_hamming_distance_similarity.html" title="海量数据相似度计算之simhash和海明距离" target="_blank" rel="noopener">1</a></a>。</p>
+<h2 id="0x002、python中的simhash包"><a href="#0x002、python中的simhash包" class="headerlink" title="0x002、python中的simhash包"></a>0x002、python中的simhash包</h2><p>pip源中有数种simhash的实现，目前的工作中我使用的包就叫<em>simhash</em>，使用起来十分方便，直接使用pip就可以安装。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip install simhash</span><br></pre></td></tr></table></figure>
+<p>一个简单的演示：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> simhash <span class="keyword">import</span> Simhash</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_features</span><span class="params">(s)</span>:</span></span><br><span class="line">    width = <span class="number">3</span></span><br><span class="line">    s = s.lower()</span><br><span class="line">    s = re.sub(<span class="string">r'[^\w]+'</span>, <span class="string">''</span>, s)</span><br><span class="line">    <span class="keyword">return</span> [s[i:i + width] <span class="keyword">for</span> i <span class="keyword">in</span> range(max(len(s) - width + <span class="number">1</span>, <span class="number">1</span>))]</span><br><span class="line"></span><br><span class="line">print(<span class="string">'%x'</span> % Simhash(get_features(<span class="string">'How are you? I am fine. Thanks.'</span>)).value)</span><br><span class="line">print(<span class="string">'%x'</span> % Simhash(get_features(<span class="string">'How are u? I am fine.     Thanks.'</span>)).value)</span><br><span class="line">print(<span class="string">'%x'</span> % Simhash(get_features(<span class="string">'How r you?I    am fine. Thanks.'</span>)).value)</span><br></pre></td></tr></table></figure>
+<p>上面的代码中，get_features()是一个十分naive的用于提取特征的函数，以3个character为一个特征。相当于分词。Simhash()可以接收一个字符串，也可以接收一个列表。代码演示来自于<a href="https://leons.im/posts/a-python-implementation-of-simhash-algorithm/" title="A Python Implementation of Simhash Algorithm" target="_blank" rel="noopener"><a href="https://leons.im/posts/a-python-implementation-of-simhash-algorithm/" title="A Python Implementation of Simhash Algorithm" target="_blank" rel="noopener">2</a></a>。</p>
+<p>计算出来simhash之后，可以很方便地计算两个simhash之间的距离。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> simhash <span class="keyword">import</span> Simhash</span><br><span class="line">print(Simhash(<span class="string">'aa'</span>).distance(Simhash(<span class="string">'bb'</span>)))</span><br><span class="line">print(Simhash(<span class="string">'aa'</span>).distance(Simhash(<span class="string">'aa'</span>)))</span><br></pre></td></tr></table></figure>
+<p>以上。</p>
+]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -86,9 +294,134 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[Python爬虫指归（一）]]></title>
-    <url>%2Farchives%2Fc4bb8d8b.html</url>
-    <content type="text"><![CDATA[最近面临一个采集语料的任务，要求以百度搜索为入口，从搜索结果中检索到需要的语料。这样一来，面临的情况就相当复杂，于是好好研究了一下自动化测试工具Selenium，用这玩意儿做爬虫简直是万能的。可以把它当成一个浏览器的控制工具，也就是说，只要浏览器可以访问的页面，都可以爬下来。Selenium的使用不算复杂，但是使用的过程中发现，这里面的坑真不是一般的多！这篇文章其实更适合叫做 “Python爬虫踩坑记” ，因为每条经验都是踩坑踩！出！来！的！！！啊……一、前期准备1、安装Selenium1pip install selenium2、安装lxmllxml是一个用来解析html文件的包，可以很方便地通过xpath语法定位html中的标签和元素。安装也很简单，pip一下就好了。1pip install lxml3、安装浏览器及driver推荐Selenium搭配Chrome使用。在我的系统（OpenSuse Leap 42.2）上，使用Selenium（version:3.4.3）搭配PhantomJS和Firefox都会出现一个奇怪的问题，就是在访问某些页面的时候会卡住，既不报错也不返回结果，尝试使用 implicitly_wait()、set_page_load_timeout()、set_script_timeout() 几个函数设置超时都没效果，而且更换User-Agent之后也没有用，换用Chrome之后问题消失。Windows用户在安装Chrome时，需要注意只能安装 32位版本 （因为稍后需要的chromedriver只支持32位版），并且 不要 更改Chrome默认的安装路径，不然将无法使用。之后，需要下载一个chromedriver ，最新版是2.31，原下载地址被墙，好在我们有镜像：http://npm.taobao.org/mirrors/chromedriver/2.31/下载好之后，Windows用户 ：在C盘新建一个chromedriver文件夹，并把chromedriver.exe这个文件放进去。然后在环境变量（PATH）中添加“C:\chromedriver\”。Linux用户 ：把chromedriver文件放入/usr/bin/路径中。4、测试在Python交互环境中输入如下代码：12from selenium import webdriverdriver = webdriver.Chrome()这时，桌面上应该会打开一个空白的Chrome浏览器窗口。继续输入：1driver.get("http://www.baidu.com")就打开了百度的主页面。如果出现异常，请检查如上步骤是否做好。或者也可以在下方留言，反正看我博客的人也不多……二、网页及xpath简介1、关于网页爬虫的目的是为了在网页上爬取有用的信息，这也就要求我们要对网页的组成最起码有基础的了解。基本上每种浏览器都提供了查看网页源代码的方式，在一张网页上点击右键，一般就可以找到类似的选项。这时，可以看到具有如下基本结构的代码：123456789101112&lt;html&gt; &lt;head&gt; &lt;h1&gt; Title &lt;/h1&gt; ... ... &lt;/head&gt; &lt;body&gt; &lt;p&gt; &lt;/p&gt; ... ... &lt;/body&gt;&lt;/html&gt;这是HTML（超文本标记语言）的基本结构，一个 &lt;…&gt; 叫做一个标签，标签一般是成对出现的，比如 &lt;html&gt; 和 &lt;/html&gt;，带有斜杠的这种叫做闭合标签。每种标签具有不同的意义，比如：&lt;html&gt; 与 &lt;/html&gt; 之间的文本描述网页&lt;body&gt; 与 &lt;/body&gt; 之间的文本是可见的页面内容&lt;h1&gt; 与 &lt;/h1&gt; 之间的文本被显示为标题&lt;p&gt; 与 &lt;/p&gt; 之间的文本被显示为段落浏览器就是根据这样的成对的标签，来加载每一个网页的。标签一般会带有属性，比如：1&lt;title lang="en"&gt;Harry Potter&lt;/title&gt;title标签就带有一个“lang”属性，且属性的值为“en”。我们的目的是为了爬取信息，以上内容理解就可以，标签的意义并不需要识记。2、关于xpath我们通过爬虫爬取下来的网页，也具有如上的基本结构。那么，如何通过这些HTML标签，快速地定位到我们所需要的信息呢？上节中的HTML代码可以看成具有树型的结构，如下图所示在这个树形结构中，每对标签可以看做是一个 节点 。比如 head 是 h1 的 父节点 ，而 h1 是 head 的 子节点。xpath就提供了一种简单的语法，来解析HTML的这种树型结构。常用的xpath选取节点的方式如下：选取符号含义/从根节点开始选取//选择当前节点以下的节点，不考虑节点所处的绝对位置.选取当前节点..选取当前节点的父节点@选取属性text()选取当前节点下的文字我们来看一个实例：123456789101112&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;&lt;bookstore&gt; &lt;book&gt; &lt;title lang="en"&gt;Harry Potter&lt;/title&gt; &lt;author&gt;J K. Rowling&lt;/author&gt; &lt;year&gt;2005&lt;/year&gt; &lt;price&gt;29.99&lt;/price&gt; &lt;/book&gt;&lt;/bookstore&gt;在上面这段XML代码中（如果读者不明白HTML和XML有什么差别，就把它们当成一样的好了），可以使用诸如如下的方式选取内容：表达式含义/bookstore/book/author/text()选取author节点下的文字内容//author/text()选取author节点下的文字内容//titile[@lang=’en’]/text()选取含有“lang”属性且属性值为“en”的title节点下的文字内容//title[contains(@lang, ‘en’)]/text()选取属性“lang”中包含“en”字符的title节点下的文字内容//title/@lang选取title的属性“lang”的值以上是比较常用的xpath语法。三、第一个爬虫现在可以使用上面的工具，实现一个简单的爬虫了。我们以爬取豆瓣读书页面为例。打开豆瓣读书的首页，可以看到有一个名为“最受关注图书榜”的栏目，栏目中共有十本书，以及与书相关的评论。我们的目的就是获取书名，以及评论。在页面空白处点击鼠标右键，选择“检查元素”，可以在右方弹出检查页面元素的小窗口。把鼠标放在右侧的代码上，左侧就会用阴影区域显示出当前代码对应的内容。然后通过点击代码左侧折行的小三角，就可以一步一步定位到我们需要找的代码。通过检查我们可以发现，我们需要的信息处于这样的结构中：1234567891011121314&lt;div class="section popular-books"&gt; ... ... &lt;li class&gt; ... ... &lt;div class="info"&gt; &lt;h4 class="title"&gt; XXX &lt;/h4&gt; ... ... &lt;p class="reviews"&gt; XXX &lt;/p&gt; ... ... &lt;/div&gt; ... ... &lt;/li&gt; ... ...&lt;/div&gt;不重要的部分我使用省略号略去，而“XXX”则代表我们需要提取出来的内容。使用xpath表示标题及评论内容为:标题：//div[@class=&#39;section popular-books&#39;]//li//div[@class=&#39;info&#39;]//h4[@class=&#39;title&#39;]//text()评论：//div[@class=&#39;section popular-books&#39;]//li//div[@class=&#39;info&#39;]//p[@class=&#39;reviews&#39;]//text()需要注意的是，“&lt;li&gt;”标签表示的是列表项，因此我们可以先提取所有的“&lt;li&gt;”标签，然后在循环提取十个标题和评论就可以了。代码实现如下：123456789101112131415161718192021222324252627282930313233#! /usr/bin/env python3# -*- coding: utf-8 -*-# 导入需要的组件from selenium import webdriverfrom lxml import etreedriver = webdriver.Chrome()driver.get('https://book.douban.com')# page_source中存放的就是当前浏览器中显示页面的html代码# 将其存放到page变量中page = driver.page_source# 使用etree中的HTML函数进行解析，并获取希望得到的信息selector = etree.HTML(page)info_list = selector.xpath("//div[@class='section popular-books']//li")#循环获取标题和评论信息titles = []reviews = []for info in info_list: # 注意，下一行xpath语句以点开始 t = info.xpath(".//h4[@class='title']//text()") titles.append(t) # 注意，下一行xpath语句以点开始 r = info.xpath("//p[@class='reviews']//text()") reviews.append(r)# 保存到文件with open("popular-books.txt", "w") as fw: for i in range(len(titles)): fw.write("书名：%s\n评论：%s\n" % (titles[i], reviews[i]))这样，一个简单的爬虫就写好了。但是显然它还比较简陋，代码也比较丑，还有许多需要改进的地方。下一节将记录如何改进爬虫，使它变得更强大。]]></content>
+    <title>Python爬虫指归（一）</title>
+    <url>/archives/c4bb8d8b.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>最近面临一个采集语料的任务，要求以百度搜索为入口，从搜索结果中检索到需要的语料。这样一来，面临的情况就相当复杂，于是好好研究了一下自动化测试工具Selenium，用这玩意儿做爬虫简直是万能的。可以把它当成一个浏览器的控制工具，也就是说，只要浏览器可以访问的页面，都可以爬下来。Selenium的使用不算复杂，但是使用的过程中发现，这里面的坑真不是一般的多！这篇文章其实更适合叫做 <strong>“Python爬虫踩坑记”</strong> ，因为每条经验都是踩坑踩！出！来！的！！！啊……</p>
+<a id="more"></a>
+<h2 id="一、前期准备"><a href="#一、前期准备" class="headerlink" title="一、前期准备"></a>一、前期准备</h2><h3 id="1、安装Selenium"><a href="#1、安装Selenium" class="headerlink" title="1、安装Selenium"></a>1、安装Selenium</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip install selenium</span><br></pre></td></tr></table></figure>
+<h3 id="2、安装lxml"><a href="#2、安装lxml" class="headerlink" title="2、安装lxml"></a>2、安装lxml</h3><p>lxml是一个用来解析html文件的包，可以很方便地通过xpath语法定位html中的标签和元素。安装也很简单，pip一下就好了。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip install lxml</span><br></pre></td></tr></table></figure>
+<h3 id="3、安装浏览器及driver"><a href="#3、安装浏览器及driver" class="headerlink" title="3、安装浏览器及driver"></a>3、安装浏览器及driver</h3><p>推荐Selenium搭配Chrome使用。</p>
+<blockquote>
+<p>在我的系统（OpenSuse Leap 42.2）上，使用Selenium（version:3.4.3）搭配PhantomJS和Firefox都会出现一个奇怪的问题，就是在访问某些页面的时候会卡住，既不报错也不返回结果，尝试使用 <strong>implicitly_wait()</strong>、<strong>set_page_load_timeout()</strong>、<strong>set_script_timeout()</strong> 几个函数设置超时都没效果，而且更换User-Agent之后也没有用，换用Chrome之后问题消失。</p>
+</blockquote>
+<p>Windows用户在安装Chrome时，需要注意只能安装 <strong>32位版本</strong> （因为稍后需要的chromedriver只支持32位版），并且 <strong>不要</strong> 更改Chrome默认的安装路径，不然将无法使用。之后，需要下载一个<strong>chromedriver</strong> ，最新版是2.31，原下载地址被墙，好在我们有镜像：</p>
+<p><a href="http://npm.taobao.org/mirrors/chromedriver/2.31/" target="_blank" rel="noopener">http://npm.taobao.org/mirrors/chromedriver/2.31/</a></p>
+<p>下载好之后，</p>
+<p><strong>Windows用户</strong> ：在C盘新建一个chromedriver文件夹，并把chromedriver.exe这个文件放进去。然后在环境变量（PATH）中添加“C:\chromedriver\”。</p>
+<p><strong>Linux用户</strong> ：把chromedriver文件放入/usr/bin/路径中。</p>
+<h3 id="4、测试"><a href="#4、测试" class="headerlink" title="4、测试"></a>4、测试</h3><p>在Python交互环境中输入如下代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line">driver = webdriver.Chrome()</span><br></pre></td></tr></table></figure>
+<p>这时，桌面上应该会打开一个空白的Chrome浏览器窗口。继续输入：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">driver.get(<span class="string">"http://www.baidu.com"</span>)</span><br></pre></td></tr></table></figure>
+<p>就打开了百度的主页面。</p>
+<p>如果出现异常，请检查如上步骤是否做好。或者也可以在下方留言，反正看我博客的人也不多……</p>
+<h2 id="二、网页及xpath简介"><a href="#二、网页及xpath简介" class="headerlink" title="二、网页及xpath简介"></a>二、网页及xpath简介</h2><h3 id="1、关于网页"><a href="#1、关于网页" class="headerlink" title="1、关于网页"></a>1、关于网页</h3><p>爬虫的目的是为了在网页上爬取有用的信息，这也就要求我们要对网页的组成最起码有基础的了解。基本上每种浏览器都提供了查看网页源代码的方式，在一张网页上点击右键，一般就可以找到类似的选项。这时，可以看到具有如下基本结构的代码：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">h1</span>&gt;</span> Title <span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">		... ...</span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">		... ...</span><br><span class="line">	<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这是HTML（超文本标记语言）的基本结构，一个 <strong>&lt;…&gt;</strong> 叫做一个标签，标签一般是成对出现的，比如 <strong>&lt;html&gt;</strong> 和 <strong>&lt;/html&gt;</strong>，带有斜杠的这种叫做闭合标签。每种标签具有不同的意义，比如：</p>
+<ul>
+<li>&lt;html&gt; 与 &lt;/html&gt; 之间的文本描述网页</li>
+<li>&lt;body&gt; 与 &lt;/body&gt; 之间的文本是可见的页面内容</li>
+<li>&lt;h1&gt; 与 &lt;/h1&gt; 之间的文本被显示为标题</li>
+<li>&lt;p&gt; 与 &lt;/p&gt; 之间的文本被显示为段落</li>
+</ul>
+<p>浏览器就是根据这样的成对的标签，来加载每一个网页的。</p>
+<p>标签一般会带有属性，比如：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">title</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span>Harry Potter<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>title标签就带有一个“lang”属性，且属性的值为“en”。</p>
+<p>我们的目的是为了爬取信息，以上内容理解就可以，标签的意义并不需要识记。</p>
+<h3 id="2、关于xpath"><a href="#2、关于xpath" class="headerlink" title="2、关于xpath"></a>2、关于xpath</h3><p>我们通过爬虫爬取下来的网页，也具有如上的基本结构。那么，如何通过这些HTML标签，快速地定位到我们所需要的信息呢？</p>
+<p>上节中的HTML代码可以看成具有树型的结构，如下图所示</p>
+<p><img src="/images/html_tree.png" alt="HTML树结构" title="HTML树结构"></p>
+<p>在这个树形结构中，每对标签可以看做是一个 <strong>节点</strong> 。比如 <strong>head</strong> 是 <strong>h1</strong> 的 <strong>父节点</strong> ，而 <strong>h1</strong> 是 <strong>head</strong> 的 <strong>子节点</strong>。xpath就提供了一种简单的语法，来解析HTML的这种树型结构。常用的xpath选取节点的方式如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>选取符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/</td>
+<td>从根节点开始选取</td>
+</tr>
+<tr>
+<td>//</td>
+<td>选择当前节点以下的节点，不考虑节点所处的绝对位置</td>
+</tr>
+<tr>
+<td>.</td>
+<td>选取当前节点</td>
+</tr>
+<tr>
+<td>..</td>
+<td>选取当前节点的父节点</td>
+</tr>
+<tr>
+<td>@</td>
+<td>选取属性</td>
+</tr>
+<tr>
+<td>text()</td>
+<td>选取当前节点下的文字</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>我们来看一个实例：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">bookstore</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">book</span>&gt;</span></span><br><span class="line">  		<span class="tag">&lt;<span class="name">title</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span>Harry Potter<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  		<span class="tag">&lt;<span class="name">author</span>&gt;</span>J K. Rowling<span class="tag">&lt;/<span class="name">author</span>&gt;</span> </span><br><span class="line">  		<span class="tag">&lt;<span class="name">year</span>&gt;</span>2005<span class="tag">&lt;/<span class="name">year</span>&gt;</span></span><br><span class="line">  		<span class="tag">&lt;<span class="name">price</span>&gt;</span>29.99<span class="tag">&lt;/<span class="name">price</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">book</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">bookstore</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在上面这段XML代码中（如果读者不明白HTML和XML有什么差别，就把它们当成一样的好了），可以使用诸如如下的方式选取内容：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/bookstore/book/author/text()</td>
+<td>选取author节点下的文字内容</td>
+</tr>
+<tr>
+<td>//author/text()</td>
+<td>选取author节点下的文字内容</td>
+</tr>
+<tr>
+<td>//titile[@lang=’en’]/text()</td>
+<td>选取含有“lang”属性且属性值为“en”的title节点下的文字内容</td>
+</tr>
+<tr>
+<td>//title[contains(@lang, ‘en’)]/text()</td>
+<td>选取属性“lang”中包含“en”字符的title节点下的文字内容</td>
+</tr>
+<tr>
+<td>//title/@lang</td>
+<td>选取title的属性“lang”的值</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>以上是比较常用的xpath语法。</p>
+<h2 id="三、第一个爬虫"><a href="#三、第一个爬虫" class="headerlink" title="三、第一个爬虫"></a>三、第一个爬虫</h2><p>现在可以使用上面的工具，实现一个简单的爬虫了。我们以爬取豆瓣读书页面为例。</p>
+<p>打开<a href="https://book.douban.com" target="_blank" rel="noopener">豆瓣读书</a>的首页，可以看到有一个名为“最受关注图书榜”的栏目，栏目中共有十本书，以及与书相关的评论。我们的目的就是获取书名，以及评论。</p>
+<p><img src="/images/Screenshot_20170803_202642.png" alt="豆瓣最受关注图书榜" title="豆瓣最受关注图书榜"></p>
+<p>在页面空白处点击鼠标右键，选择“检查元素”，可以在右方弹出检查页面元素的小窗口。</p>
+<p><img src="/images/Screenshot_20170803_203304.png" alt="选择“检查元素”" title="选择“检查元素”"></p>
+<p>把鼠标放在右侧的代码上，左侧就会用阴影区域显示出当前代码对应的内容。然后通过点击代码左侧折行的小三角，就可以一步一步定位到我们需要找的代码。</p>
+<p><img src="/images/Screenshot_20170803_203643.png" alt="查看页面元素" title="查看页面元素"></p>
+<p>通过检查我们可以发现，我们需要的信息处于这样的结构中：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"section popular-books"</span>&gt;</span></span><br><span class="line">	... ...</span><br><span class="line">	<span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>&gt;</span></span><br><span class="line">		... ...</span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"info"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">h4</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span> XXX <span class="tag">&lt;/<span class="name">h4</span>&gt;</span></span><br><span class="line">			... ...</span><br><span class="line">			<span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">"reviews"</span>&gt;</span> XXX <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">			... ...</span><br><span class="line">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		... ...</span><br><span class="line">	<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">	... ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>不重要的部分我使用省略号略去，而“XXX”则代表我们需要提取出来的内容。使用xpath表示标题及评论内容为:</p>
+<p>标题：<br><code>//div[@class=&#39;section popular-books&#39;]//li//div[@class=&#39;info&#39;]//h4[@class=&#39;title&#39;]//text()</code></p>
+<p>评论：<br><code>//div[@class=&#39;section popular-books&#39;]//li//div[@class=&#39;info&#39;]//p[@class=&#39;reviews&#39;]//text()</code></p>
+<p>需要注意的是，“&lt;li&gt;”标签表示的是列表项，因此我们可以先提取所有的“&lt;li&gt;”标签，然后在循环提取十个标题和评论就可以了。代码实现如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/env python3</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入需要的组件</span></span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> etree</span><br><span class="line"></span><br><span class="line">driver = webdriver.Chrome()</span><br><span class="line">driver.get(<span class="string">'https://book.douban.com'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># page_source中存放的就是当前浏览器中显示页面的html代码</span></span><br><span class="line"><span class="comment"># 将其存放到page变量中</span></span><br><span class="line">page = driver.page_source</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用etree中的HTML函数进行解析，并获取希望得到的信息</span></span><br><span class="line">selector = etree.HTML(page)</span><br><span class="line">info_list = selector.xpath(<span class="string">"//div[@class='section popular-books']//li"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#循环获取标题和评论信息</span></span><br><span class="line">titles = []</span><br><span class="line">reviews = []</span><br><span class="line"><span class="keyword">for</span> info <span class="keyword">in</span> info_list:</span><br><span class="line">	<span class="comment"># 注意，下一行xpath语句以点开始</span></span><br><span class="line">	t = info.xpath(<span class="string">".//h4[@class='title']//text()"</span>) </span><br><span class="line">	titles.append(t)</span><br><span class="line">	<span class="comment"># 注意，下一行xpath语句以点开始</span></span><br><span class="line">	r = info.xpath(<span class="string">"//p[@class='reviews']//text()"</span>)</span><br><span class="line">	reviews.append(r)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存到文件</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">"popular-books.txt"</span>, <span class="string">"w"</span>) <span class="keyword">as</span> fw:</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(len(titles)):</span><br><span class="line">		fw.write(<span class="string">"书名：%s\n评论：%s\n"</span> % (titles[i], reviews[i]))</span><br></pre></td></tr></table></figure>
+<p>这样，一个简单的爬虫就写好了。但是显然它还比较简陋，代码也比较丑，还有许多需要改进的地方。下一节将记录如何改进爬虫，使它变得更强大。</p>
+]]></content>
       <categories>
         <category>Python</category>
       </categories>
@@ -99,61 +432,193 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[Python日知录|快速创建对应多个值的字典]]></title>
-    <url>%2Farchives%2Fd5d754ba.html</url>
-    <content type="text"><![CDATA[经常会遇到这种情况，字典中的每个键需要对应的不仅仅是一个值，而是多个值。这种时候就需要将这些值封装到另一个数据结构中，比如列表或另一个字典。数据结构可能是这样的：12345sample_dict = &#123; 'a': [1, 2, 3], 'b': [2, 4, 6], 'c': [3, 6, 9],&#125;这种稍复杂的数据结构如果手动处理必定比较麻烦。这时可以使用 collections 模块中的 defaultdict 来封装这种复杂的字典。 defaultdict 一个显著的特点，就是它会自动初始化每个键开始时对应的值，这样便可以很方便的添加元素了。123456from collections import defaultdictsample_dict = defaultdict(list)sample_dict['a'] = [1, 2, 3]sample_dict['b'].extend([2, 4, 6])sample_dict['c'] += [3, 6, 9]需要注意的是， defaultdict会将每个键对应的值初始化为一个默认的空数据结构，如果不需要这样的特性，可以使用字典的 setdefault() 方法来替代。1234sample = &#123;&#125;sample.setdefault('a', []).append(1)sample.setdefault('a', []).append(2)sample.setdefault('b', []).append(4)]]></content>
+    <title>Python日知录|快速创建对应多个值的字典</title>
+    <url>/archives/d5d754ba.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>经常会遇到这种情况，字典中的每个键需要对应的不仅仅是一个值，而是多个值。这种时候就需要将这些值封装到另一个数据结构中，比如列表或另一个字典。数据结构可能是这样的：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">sample_dict = &#123;</span><br><span class="line">	<span class="string">'a'</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">	<span class="string">'b'</span>: [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>],</span><br><span class="line">	<span class="string">'c'</span>: [<span class="number">3</span>, <span class="number">6</span>, <span class="number">9</span>],</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>这种稍复杂的数据结构如果手动处理必定比较麻烦。这时可以使用 <strong>collections</strong> 模块中的 <strong>defaultdict</strong> 来封装这种复杂的字典。 <strong>defaultdict</strong> 一个显著的特点，就是它会自动初始化每个键开始时对应的值，这样便可以很方便的添加元素了。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"></span><br><span class="line">sample_dict = defaultdict(list)</span><br><span class="line">sample_dict[<span class="string">'a'</span>] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line">sample_dict[<span class="string">'b'</span>].extend([<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>])</span><br><span class="line">sample_dict[<span class="string">'c'</span>] += [<span class="number">3</span>, <span class="number">6</span>, <span class="number">9</span>]</span><br></pre></td></tr></table></figure>
+<p>需要注意的是， <strong>defaultdict</strong>会将每个键对应的值初始化为一个默认的空数据结构，如果不需要这样的特性，可以使用字典的 <strong>setdefault()</strong> 方法来替代。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">sample = &#123;&#125;</span><br><span class="line">sample.setdefault(<span class="string">'a'</span>, []).append(<span class="number">1</span>)</span><br><span class="line">sample.setdefault(<span class="string">'a'</span>, []).append(<span class="number">2</span>)</span><br><span class="line">sample.setdefault(<span class="string">'b'</span>, []).append(<span class="number">4</span>)</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Python</category>
       </categories>
       <tags>
         <tag>python</tag>
+        <tag>技巧</tag>
         <tag>defaultdict</tag>
         <tag>字典</tag>
-        <tag>技巧</tag>
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[Pymongo入门学习笔记（三）]]></title>
-    <url>%2Farchives%2F65d1bf17.html</url>
-    <content type="text"><![CDATA[升级数据（Update）使用Pymongo进行数据的update，同样有两种方法可用，分别为update_one()和update_many()。顾名思义，update_one()只升级一条文档，update_many()升级所有符合查询条件的文档。注意：_id字段无法被升级！升级指定单个字段MongoDB提供了升级操作符（update operators）来进行升级字段的操作，比如$set操作符，可以用来修改一个字段的值。有些操作符，比如$set，如果字段不存在的话，会创建这个字段。详情可查看官网关于查询操作符的页面。123456789result = db.restaurants.update_one( &#123;"name": "Juni"&#125;, &#123; "$set": &#123; "cuisine": "American (New)" &#125;, "$currentDate": &#123;"lastModified": True&#125; &#125;)如上代码进行的操作，将会升级数据库中第一个”name”字段为”Juni”的文档，使用$set操作符修改了cuisine字段，然后使用$currentDate操作符升级了lastModified字段。操作将会返回一个UpdateResult对象，其中包含了修改了的文档数目。可以通过以下代码查看：1234567result.matched_count# 返回值：# 1result.modified_count# 返回值：# 1如果要修改的字段被嵌入在文档或列表中，可以使用点号。例如：1234result = db.restaurants.update_one( &#123;"restaurant_id": "41156888"&#125;, &#123;"$set": &#123;"address.street": "East 31st Street"&#125;&#125;)上面的操作升级了address文档中的street字段。升级多个文档和升级单个文档类似，可以使用update_many()方法来升级符合查询条件的多个文档。例如：123456789101112131415result = db.restaurants.update_many( &#123;"address.zipcode": "10016", "cuisine": "Other"&#125;, &#123; "$set": &#123;"cuisine": "Category To Be Determined"&#125;, "$currentDate": &#123;"lastModified": True&#125; &#125;)# 查询match的文档数量print(result.matched_count)# 返回值应为 20# 查询修改的文档数量print(result.modified_count)# 返回值应为 20替换文档在一个文档中，除了 _id 字段都可被替换。被替换的文档的结构可以和原文档不同。注意：文档替换之后，新的文档将不再包含原文档中的字段！例如，在下面的替换操作之后，新的文档将只包含 _id 字段，name 字段， address 字段等。其余原文档中的字段不再存在。123456789101112result = db.restaurants.replace_one( &#123;"restaurant_id": "41704620"&#125;, &#123; "name": "Vella 2", "address": &#123; "coord": [-73.9557413, 40.7720266], "building": "1480", "street": "2 Avenue", "zipcode": "10075" &#125; &#125;)移除数据（Remove）从集合中移除文档Pymongo提供了 delete_one() 和 delete_many() 两种方法，来从集合中移除文档。它们的使用是类似的。通过下面的操作，可以移除符合查询条件的文档，并打印移除文档的数量。12345result = db.restaurants.delete_many(&#123;"borough": "Manhattan"&#125;)# 打印移除文档的数量print(result.deleted_count)# 移除的文档数量： 10259如果不指定条件，那么将会删除所有文档。如1result = db.restaurants.delete_many(&#123;&#125;)移除集合如果仅仅移除集合中的所有文档，操作完成之后集合仍然存在。所以更有效率的方式是直接移除该集合，可以使用 drop() 方法实现该操作。1db.restaurants.drop()数据聚合（Aggregat）MongoDB中的聚合操作主要用于处理数据，比如统计平均值、求和等，返回值为计算后的数据结果。有点类似于sql与剧中的count(*)。例如：12345cursor = db.restaurants.aggregate( [ &#123;"$group": &#123;"_id": "$borough", "count": &#123;"$sum": 1&#125;&#125;&#125; ])以上操作先根据 borough 字段分组，然后计算了每一组中文档的数目。返回值如下：123456&#123;u'count': 969, u'_id': u'Staten Island'&#125;&#123;u'count': 6086, u'_id': u'Brooklyn'&#125;&#123;u'count': 10259, u'_id': u'Manhattan'&#125;&#123;u'count': 5656, u'_id': u'Queens'&#125;&#123;u'count': 2338, u'_id': u'Bronx'&#125;&#123;u'count': 51, u'_id': u'Missing'&#125;管道（Pipeline）管道在Unix和Linux中一般用于将当前命令的输出结果作为下一个命令的参数。MongoDB中的聚合管道将MongoDB文档在一个管道处理完毕后，将结果传递给下一个管道处理。管道操作是可以重复的。聚合中常用的几个管道操作有：$project：修改输入文档的结构。可以用来重命名、增加或删除域，也可以用于创建计算结果以及嵌套文档。$match：用于过滤数据，只输出符合条件的文档。$match使用MongoDB的标准查询操作。$limit：用来限制MongoDB聚合管道返回的文档数。$skip：在聚合管道中跳过指定数量的文档，并返回余下的文档。$unwind：将文档中的某一个数组类型字段拆分成多条，每条包含数组中的一个值。$group：将集合中的文档分组，可用于统计结果。$sort：将输入文档排序后输出。$geoNear：输出接近某一地理位置的有序文档。实例除了上面进行分组并计数的操作外，另一个常见的操作是查询符合条件的文档，再对符合条件的文档进行分组统计。既然管道操作是可以重复的，那么便可以使用两个管道操作来实现。123456cursor = db.restaurants.aggregate( [ &#123;"$match": &#123;"borough": "Queens", "cuisine": "Brazilian"&#125;&#125;, &#123;"$group": &#123;"_id": "$address.zipcode", "count": &#123;"$sum": 1&#125;&#125;&#125; ])索引（Index）索引通常能够极大的提高查询效率，如果没有索引，MongoDB在读取数据时必须扫描集合中的每个文件并选取那些符合查询条件的记录。而这种扫描全集合的查询效率是非常低的，特别在处理大量的数据时，查询可能会花费几十秒甚至几分钟。索引是一种特殊的数据结构，索引存储在一个易于遍历读取的数据集合中，索引是对数据库中一列或多列的值进行排序的一种结构。使用Pymongo，可以使用 create_index() 方法建立数据库索引。建立单字段索引如下，可以对 “cuisine” 字段建立一个升序索引。12import pymongodb.restaurants.create_index([("cuisine", pymongo.ASCENDING)])使用pymongo.ASCENDING创建升序索引使用pymongo.DESCENDING创建降序索引建立多字段混合索引如下，创建对 “cuisine” 字段和 “address.zipcode” 字段的混合索引。索引将会首先对 “cuisine” 字段进行升序排列，在每个 “cuisine” 字段中，依据“address.zipcode”字段进行降序排列。12345import pymongodb.restaurants.create_index([ ("cuisine", pymongo.ASCENDING), ("address.zipcode", pymongo.DESCENDING)])The End.]]></content>
+    <title>Pymongo入门学习笔记（三）</title>
+    <url>/archives/65d1bf17.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h2 id="升级数据（Update）"><a href="#升级数据（Update）" class="headerlink" title="升级数据（Update）"></a>升级数据（Update）</h2><p>使用Pymongo进行数据的update，同样有两种方法可用，分别为<strong>update_one()</strong>和<strong>update_many()</strong>。顾名思义，update_one()只升级一条文档，update_many()升级所有符合查询条件的文档。</p>
+<p><strong>注意：_id字段无法被升级！</strong></p>
+<h3 id="升级指定单个字段"><a href="#升级指定单个字段" class="headerlink" title="升级指定单个字段"></a>升级指定单个字段</h3><p>MongoDB提供了<strong>升级操作符</strong>（update operators）来进行升级字段的操作，比如<strong>$set</strong>操作符，可以用来修改一个字段的值。有些操作符，比如<strong>$set</strong>，如果字段不存在的话，会创建这个字段。</p>
+<a id="more"></a>
+<p>详情可查看官网关于<a href="https://docs.mongodb.com/manual/reference/operator/update/" target="_blank" rel="noopener"><em>查询操作符</em></a>的页面。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.update_one(</span><br><span class="line">    &#123;<span class="string">"name"</span>: <span class="string">"Juni"</span>&#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">"$set"</span>: &#123;</span><br><span class="line">            <span class="string">"cuisine"</span>: <span class="string">"American (New)"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"$currentDate"</span>: &#123;<span class="string">"lastModified"</span>: <span class="literal">True</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>如上代码进行的操作，将会升级数据库中第一个”name”字段为”Juni”的文档，使用<strong>$set</strong>操作符修改了<strong>cuisine</strong>字段，然后使用<strong>$currentDate</strong>操作符升级了<strong>lastModified</strong>字段。</p>
+<p>操作将会返回一个<strong>UpdateResult</strong>对象，其中包含了修改了的文档数目。可以通过以下代码查看：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result.matched_count</span><br><span class="line"><span class="comment"># 返回值：</span></span><br><span class="line"><span class="comment"># 1</span></span><br><span class="line"></span><br><span class="line">result.modified_count</span><br><span class="line"><span class="comment"># 返回值：</span></span><br><span class="line"><span class="comment"># 1</span></span><br></pre></td></tr></table></figure>
+<p>如果要修改的字段被嵌入在文档或列表中，可以使用点号。例如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.update_one(</span><br><span class="line">    &#123;<span class="string">"restaurant_id"</span>: <span class="string">"41156888"</span>&#125;,</span><br><span class="line">    &#123;<span class="string">"$set"</span>: &#123;<span class="string">"address.street"</span>: <span class="string">"East 31st Street"</span>&#125;&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>上面的操作升级了<strong>address</strong>文档中的<strong>street</strong>字段。</p>
+<h3 id="升级多个文档"><a href="#升级多个文档" class="headerlink" title="升级多个文档"></a>升级多个文档</h3><p>和升级单个文档类似，可以使用<strong>update_many()</strong>方法来升级符合查询条件的多个文档。例如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.update_many(</span><br><span class="line">    &#123;<span class="string">"address.zipcode"</span>: <span class="string">"10016"</span>, <span class="string">"cuisine"</span>: <span class="string">"Other"</span>&#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">"$set"</span>: &#123;<span class="string">"cuisine"</span>: <span class="string">"Category To Be Determined"</span>&#125;,</span><br><span class="line">        <span class="string">"$currentDate"</span>: &#123;<span class="string">"lastModified"</span>: <span class="literal">True</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询match的文档数量</span></span><br><span class="line">print(result.matched_count)</span><br><span class="line"><span class="comment"># 返回值应为 20</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询修改的文档数量</span></span><br><span class="line">print(result.modified_count)</span><br><span class="line"><span class="comment"># 返回值应为 20</span></span><br></pre></td></tr></table></figure>
+<h3 id="替换文档"><a href="#替换文档" class="headerlink" title="替换文档"></a>替换文档</h3><p>在一个文档中，除了 <strong>_id</strong> 字段都可被替换。被替换的文档的结构可以和原文档不同。</p>
+<blockquote>
+<p>注意：<br>文档替换之后，新的文档将<strong>不再包含</strong>原文档中的字段！</p>
+</blockquote>
+<p>例如，在下面的替换操作之后，新的文档将只包含 <strong>_id</strong> 字段，<strong>name</strong> 字段， <strong>address</strong> 字段等。其余原文档中的字段不再存在。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.replace_one(</span><br><span class="line">    &#123;<span class="string">"restaurant_id"</span>: <span class="string">"41704620"</span>&#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">"name"</span>: <span class="string">"Vella 2"</span>,</span><br><span class="line">        <span class="string">"address"</span>: &#123;</span><br><span class="line">            <span class="string">"coord"</span>: [<span class="number">-73.9557413</span>, <span class="number">40.7720266</span>],</span><br><span class="line">            <span class="string">"building"</span>: <span class="string">"1480"</span>,</span><br><span class="line">            <span class="string">"street"</span>: <span class="string">"2 Avenue"</span>,</span><br><span class="line">            <span class="string">"zipcode"</span>: <span class="string">"10075"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h2 id="移除数据（Remove）"><a href="#移除数据（Remove）" class="headerlink" title="移除数据（Remove）"></a>移除数据（Remove）</h2><h3 id="从集合中移除文档"><a href="#从集合中移除文档" class="headerlink" title="从集合中移除文档"></a>从集合中移除文档</h3><p>Pymongo提供了 <strong>delete_one()</strong> 和 <strong>delete_many()</strong> 两种方法，来从集合中移除文档。它们的使用是类似的。</p>
+<p>通过下面的操作，可以移除符合查询条件的文档，并打印移除文档的数量。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.delete_many(&#123;<span class="string">"borough"</span>: <span class="string">"Manhattan"</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打印移除文档的数量</span></span><br><span class="line">print(result.deleted_count)</span><br><span class="line"><span class="comment"># 移除的文档数量： 10259</span></span><br></pre></td></tr></table></figure>
+<p>如果不指定条件，那么将会删除所有文档。如</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.delete_many(&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="移除集合"><a href="#移除集合" class="headerlink" title="移除集合"></a>移除集合</h3><p>如果仅仅移除集合中的所有文档，操作完成之后集合仍然存在。所以更有效率的方式是直接移除该集合，可以使用 <strong>drop()</strong> 方法实现该操作。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db.restaurants.drop()</span><br></pre></td></tr></table></figure>
+<h2 id="数据聚合（Aggregat）"><a href="#数据聚合（Aggregat）" class="headerlink" title="数据聚合（Aggregat）"></a>数据聚合（Aggregat）</h2><p>MongoDB中的聚合操作主要用于处理数据，比如统计平均值、求和等，返回值为计算后的数据结果。有点类似于sql与剧中的count(*)。例如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cursor = db.restaurants.aggregate(</span><br><span class="line">    [</span><br><span class="line">        &#123;<span class="string">"$group"</span>: &#123;<span class="string">"_id"</span>: <span class="string">"$borough"</span>, <span class="string">"count"</span>: &#123;<span class="string">"$sum"</span>: <span class="number">1</span>&#125;&#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>以上操作先根据 <strong>borough</strong> 字段分组，然后计算了每一组中文档的数目。返回值如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">969</span>, <span class="string">u'_id'</span>: <span class="string">u'Staten Island'</span>&#125;</span><br><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">6086</span>, <span class="string">u'_id'</span>: <span class="string">u'Brooklyn'</span>&#125;</span><br><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">10259</span>, <span class="string">u'_id'</span>: <span class="string">u'Manhattan'</span>&#125;</span><br><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">5656</span>, <span class="string">u'_id'</span>: <span class="string">u'Queens'</span>&#125;</span><br><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">2338</span>, <span class="string">u'_id'</span>: <span class="string">u'Bronx'</span>&#125;</span><br><span class="line">&#123;<span class="string">u'count'</span>: <span class="number">51</span>, <span class="string">u'_id'</span>: <span class="string">u'Missing'</span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="管道（Pipeline）"><a href="#管道（Pipeline）" class="headerlink" title="管道（Pipeline）"></a>管道（Pipeline）</h3><p>管道在Unix和Linux中一般用于将当前命令的输出结果作为下一个命令的参数。</p>
+<p>MongoDB中的聚合管道将MongoDB文档在一个管道处理完毕后，将结果传递给下一个管道处理。管道操作是可以重复的。</p>
+<p>聚合中常用的几个管道操作有：</p>
+<ul>
+<li>$project：修改输入文档的结构。可以用来重命名、增加或删除域，也可以用于创建计算结果以及嵌套文档。</li>
+<li>$match：用于过滤数据，只输出符合条件的文档。$match使用MongoDB的标准查询操作。</li>
+<li>$limit：用来限制MongoDB聚合管道返回的文档数。</li>
+<li>$skip：在聚合管道中跳过指定数量的文档，并返回余下的文档。</li>
+<li>$unwind：将文档中的某一个数组类型字段拆分成多条，每条包含数组中的一个值。</li>
+<li>$group：将集合中的文档分组，可用于统计结果。</li>
+<li>$sort：将输入文档排序后输出。</li>
+<li>$geoNear：输出接近某一地理位置的有序文档。</li>
+</ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>除了上面进行分组并计数的操作外，另一个常见的操作是查询符合条件的文档，再对符合条件的文档进行分组统计。既然管道操作是可以重复的，那么便可以使用两个管道操作来实现。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cursor = db.restaurants.aggregate(</span><br><span class="line">    [</span><br><span class="line">        &#123;<span class="string">"$match"</span>: &#123;<span class="string">"borough"</span>: <span class="string">"Queens"</span>, <span class="string">"cuisine"</span>: <span class="string">"Brazilian"</span>&#125;&#125;,</span><br><span class="line">        &#123;<span class="string">"$group"</span>: &#123;<span class="string">"_id"</span>: <span class="string">"$address.zipcode"</span>, <span class="string">"count"</span>: &#123;<span class="string">"$sum"</span>: <span class="number">1</span>&#125;&#125;&#125;</span><br><span class="line">    ]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h2 id="索引（Index）"><a href="#索引（Index）" class="headerlink" title="索引（Index）"></a>索引（Index）</h2><p>索引通常能够极大的提高查询效率，如果没有索引，MongoDB在读取数据时必须扫描集合中的每个文件并选取那些符合查询条件的记录。而这种扫描全集合的查询效率是非常低的，特别在处理大量的数据时，查询可能会花费几十秒甚至几分钟。</p>
+<p>索引是一种特殊的数据结构，索引存储在一个易于遍历读取的数据集合中，索引是对数据库中一列或多列的值进行排序的一种结构。</p>
+<p>使用Pymongo，可以使用 <strong>create_index()</strong> 方法建立数据库索引。</p>
+<h3 id="建立单字段索引"><a href="#建立单字段索引" class="headerlink" title="建立单字段索引"></a>建立单字段索引</h3><p>如下，可以对 <strong>“cuisine”</strong> 字段建立一个升序索引。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line">db.restaurants.create_index([(<span class="string">"cuisine"</span>, pymongo.ASCENDING)])</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用pymongo.ASCENDING创建升序索引<br>使用pymongo.DESCENDING创建降序索引</p>
+</blockquote>
+<h3 id="建立多字段混合索引"><a href="#建立多字段混合索引" class="headerlink" title="建立多字段混合索引"></a>建立多字段混合索引</h3><p>如下，创建对 <strong>“cuisine”</strong> 字段和 <strong>“address.zipcode”</strong> 字段的混合索引。索引将会首先对 <strong>“cuisine”</strong> 字段进行升序排列，在每个 <strong>“cuisine”</strong> 字段中，依据<strong>“address.zipcode”</strong>字段进行降序排列。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line">db.restaurants.create_index([</span><br><span class="line">    (<span class="string">"cuisine"</span>, pymongo.ASCENDING),</span><br><span class="line">    (<span class="string">"address.zipcode"</span>, pymongo.DESCENDING)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h2 id="The-End"><a href="#The-End" class="headerlink" title="The End."></a>The End.</h2>]]></content>
       <categories>
         <category>mongodb</category>
       </categories>
       <tags>
-        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
+        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[Pymongo入门学习笔记（二）]]></title>
-    <url>%2Farchives%2F28cf1c45.html</url>
-    <content type="text"><![CDATA[首先需要导入示例数据，导入方法可以在上一篇笔记末尾找到。从Python连接MongoDB（PyMongo）安装从Python同样可以很方便的管理MongoDB数据库，官方推荐的方法是安装PyMongo插件。安装过程很简单，直接pip一下就可以了。1pip install pymongo导入安装完成后，从pymongo中导入MongoClient类。1from pymongo import MongoClient创建连接然后就可以使用MongoClient类连接到数据库。1client = MongoClient()如果直接像上边这样连接的话，并没有对MongoClient进行任何配置，那么MongoClient会默认连接到localhost的27017端口。当然，也可以配置MongoClient连接的地址和端口，如下所示：1client = MongoClient("mongodb://mongodb0.example.net:27017")连接到数据库对象使用下面的语句，可以连接到名为primer的数据库，并把这个数据库对象分配给名为db的变量。如果不存在这个数据库，它将自动创建。1db = client.primer或者这样也可以，1db = client['primer']这样数据库的名字可以不受python命名的限制。连接到集合类似的，连接到一个名为dataset的集合，并且将这个集合对象赋给coll这个变量。123coll = db.dataset# 或者使用下面的方式coll = db['dataset']数据的插入（insert）使用pymongo插入数据有两种方法，一种是使用insert_one()方法，另一种是insert_many()。二者类似，不过前者接收的参数是一个文档，后者接收的参数是由多个文档组成的列表。如果插入数据到不存在的集合中，集合将自动创建。123result = db.restaurants.insert_one(&#123;"x":1&#125;)# 可以查看插入的idprint(result.inserted_id)如上的返回结果是一个ObjectId对象，如下所示：1ObjectId("54c1478ec2341ddf130f62b7")insert_many()方法与insert_one()类似，不再赘述。数据的查询（find）在pymongo中，数据的查询可以使用find()方法。查询集合中的所有文档如果想要返回集合中的所有文档，可以不加参数调用find()方法。例如：1234cursor = db.restaurants.find()# 遍历cursor，并打印出所有文档for document in cursor: print(document)通过字段查询把{“字段”:”值”}放到查询条件中，以查询所有某个字段的值为指定值的文档。如果字段嵌入在某个文档或列表之中，可以使用点号连接。话不多说，看示例：12345# 字段是顶级字段的情况cursor = db.restaurants.find(&#123;&quot;borough&quot;: &quot;Manhattan&quot;&#125;)# 字段嵌入在文档或列表中cursor = db.restaurants.find(&#123;&quot;address.zipcode&quot;: &quot;10075&quot;&#125;)通过操作符查询通过操作符可以进行情况更为复杂的查询，比如值大于或小于某个指定数值。使用操作符的查询具有以下形式：1&#123;&lt;字段&gt;: &#123; &lt;操作符&gt;:&lt;值&gt; &#125; &#125;比较常用的是比较操作符$gt（greater than，大于）和$lt（less than，小于）。12345# 大于cursor = db.restaurants.find(&#123;"grades.score": &#123;"$gt": 30&#125;&#125;)# 小于cursor = db.restaurants.find(&#123;"grades.score": &#123;"$lt": 10&#125;&#125;)更多操作符可以在官方文档中找到。联合查询逻辑与将查询条件并列起来，中间用逗号隔开，一并查询，可以查询到符合全部条件的结果。例如：1cursor = db.restaurants.find(&#123;"cuisine": "Italian", "address.zipcode": "10075"&#125;)逻辑或逻辑或的查询稍微复杂一下，需要将查询条件放入一个列表，并且使用$or操作符。例如：12cursor = db.restaurants.find( &#123;"$or": [&#123;"cuisine": "Italian"&#125;, &#123;"address.zipcode": "10075"&#125;]&#125;)查询结果排序使用sort()方法可以很方便的为查询结果进行排序，排序时需要指定升序或降序排列。如果指定pymongo.ASCENDING，就是升序排列，如果指定pymongo.DESCENDING，就是降序排列。可以同时对多个字段进行排序。例如，下面的例子是县对borough字段进行升序排列，当borough字段相同时，使用address.zipcode字段进行降序排列。12345import pymongocursor = db.restaurants.find().sort([ (&quot;borough&quot;, pymongo.ASCENDING), (&quot;address.zipcode&quot;, pymongo.DESCENDING)])To Be Continued… …]]></content>
+    <title>Pymongo入门学习笔记（二）</title>
+    <url>/archives/28cf1c45.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>首先需要导入示例数据，导入方法可以在上一篇笔记末尾找到。</p>
+<h2 id="从Python连接MongoDB（PyMongo）"><a href="#从Python连接MongoDB（PyMongo）" class="headerlink" title="从Python连接MongoDB（PyMongo）"></a>从Python连接MongoDB（PyMongo）</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>从Python同样可以很方便的管理MongoDB数据库，官方推荐的方法是安装PyMongo插件。安装过程很简单，直接<strong>pip</strong>一下就可以了。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install pymongo</span><br></pre></td></tr></table></figure>
+<h3 id="导入"><a href="#导入" class="headerlink" title="导入"></a>导入</h3><p>安装完成后，从pymongo中导入MongoClient类。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pymongo <span class="keyword">import</span> MongoClient</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="创建连接"><a href="#创建连接" class="headerlink" title="创建连接"></a>创建连接</h3><p>然后就可以使用MongoClient类连接到数据库。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = MongoClient()</span><br></pre></td></tr></table></figure>
+<p>如果直接像上边这样连接的话，并没有对MongoClient进行任何配置，那么MongoClient会默认连接到<strong>localhost</strong>的<strong>27017</strong>端口。</p>
+<p>当然，也可以配置MongoClient连接的地址和端口，如下所示：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = MongoClient(<span class="string">"mongodb://mongodb0.example.net:27017"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="连接到数据库对象"><a href="#连接到数据库对象" class="headerlink" title="连接到数据库对象"></a>连接到数据库对象</h3><p>使用下面的语句，可以连接到名为<strong>primer</strong>的数据库，并把这个数据库对象分配给名为<strong>db</strong>的变量。如果不存在这个数据库，它将自动创建。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = client.primer</span><br></pre></td></tr></table></figure>
+<p>或者这样也可以，</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">db = client[<span class="string">'primer'</span>]</span><br></pre></td></tr></table></figure>
+<p>这样数据库的名字可以不受python命名的限制。</p>
+<h3 id="连接到集合"><a href="#连接到集合" class="headerlink" title="连接到集合"></a>连接到集合</h3><p>类似的，连接到一个名为<strong>dataset</strong>的集合，并且将这个集合对象赋给<strong>coll</strong>这个变量。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">coll = db.dataset</span><br><span class="line"><span class="comment"># 或者使用下面的方式</span></span><br><span class="line">coll = db[<span class="string">'dataset'</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="数据的插入（insert）"><a href="#数据的插入（insert）" class="headerlink" title="数据的插入（insert）"></a>数据的插入（insert）</h2><p>使用pymongo插入数据有两种方法，一种是使用<strong>insert_one()</strong>方法，另一种是<strong>insert_many()</strong>。二者类似，不过前者接收的参数是一个文档，后者接收的参数是由多个文档组成的列表。如果插入数据到不存在的集合中，集合将自动创建。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result = db.restaurants.insert_one(&#123;<span class="string">"x"</span>:<span class="number">1</span>&#125;)</span><br><span class="line"><span class="comment"># 可以查看插入的id</span></span><br><span class="line">print(result.inserted_id)</span><br></pre></td></tr></table></figure>
+<p>如上的返回结果是一个ObjectId对象，如下所示：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ObjectId(<span class="string">"54c1478ec2341ddf130f62b7"</span>)</span><br></pre></td></tr></table></figure>
+<p>insert_many()方法与insert_one()类似，不再赘述。</p>
+<h2 id="数据的查询（find）"><a href="#数据的查询（find）" class="headerlink" title="数据的查询（find）"></a>数据的查询（find）</h2><p>在pymongo中，数据的查询可以使用<strong>find()</strong>方法。</p>
+<h3 id="查询集合中的所有文档"><a href="#查询集合中的所有文档" class="headerlink" title="查询集合中的所有文档"></a>查询集合中的所有文档</h3><p>如果想要返回集合中的<strong>所有</strong>文档，可以不加参数调用find()方法。例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cursor = db.restaurants.find()</span><br><span class="line"># 遍历cursor，并打印出所有文档</span><br><span class="line">for document in cursor:</span><br><span class="line">    print(document)</span><br></pre></td></tr></table></figure>
+<h3 id="通过字段查询"><a href="#通过字段查询" class="headerlink" title="通过字段查询"></a>通过字段查询</h3><p>把{“字段”:”值”}放到查询条件中，以查询所有某个字段的值为指定值的文档。如果字段嵌入在某个文档或列表之中，可以使用点号连接。话不多说，看示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 字段是顶级字段的情况</span><br><span class="line">cursor = db.restaurants.find(&#123;&quot;borough&quot;: &quot;Manhattan&quot;&#125;)</span><br><span class="line"></span><br><span class="line"># 字段嵌入在文档或列表中</span><br><span class="line">cursor = db.restaurants.find(&#123;&quot;address.zipcode&quot;: &quot;10075&quot;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="通过操作符查询"><a href="#通过操作符查询" class="headerlink" title="通过操作符查询"></a>通过操作符查询</h3><p>通过操作符可以进行情况更为复杂的查询，比如值大于或小于某个指定数值。使用操作符的查询具有以下形式：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;&lt;字段&gt;: &#123; &lt;操作符&gt;:&lt;值&gt; &#125; &#125;</span><br></pre></td></tr></table></figure>
+<p>比较常用的是比较操作符<strong>$gt</strong>（greater than，大于）和<strong>$lt</strong>（less than，小于）。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 大于</span></span><br><span class="line">cursor = db.restaurants.find(&#123;<span class="string">"grades.score"</span>: &#123;<span class="string">"$gt"</span>: <span class="number">30</span>&#125;&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 小于</span></span><br><span class="line">cursor = db.restaurants.find(&#123;<span class="string">"grades.score"</span>: &#123;<span class="string">"$lt"</span>: <span class="number">10</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>更多操作符可以在<a href="https://docs.mongodb.com/manual/reference/operator/query/" target="_blank" rel="noopener">官方文档</a>中找到。</p>
+<h3 id="联合查询"><a href="#联合查询" class="headerlink" title="联合查询"></a>联合查询</h3><h4 id="逻辑与"><a href="#逻辑与" class="headerlink" title="逻辑与"></a>逻辑与</h4><p>将查询条件并列起来，中间用逗号隔开，一并查询，可以查询到符合全部条件的结果。例如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cursor = db.restaurants.find(&#123;<span class="string">"cuisine"</span>: <span class="string">"Italian"</span>, <span class="string">"address.zipcode"</span>: <span class="string">"10075"</span>&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="逻辑或"><a href="#逻辑或" class="headerlink" title="逻辑或"></a>逻辑或</h4><p>逻辑或的查询稍微复杂一下，需要将查询条件放入一个列表，并且使用<strong>$or</strong>操作符。例如：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cursor = db.restaurants.find(</span><br><span class="line">    &#123;<span class="string">"$or"</span>: [&#123;<span class="string">"cuisine"</span>: <span class="string">"Italian"</span>&#125;, &#123;<span class="string">"address.zipcode"</span>: <span class="string">"10075"</span>&#125;]&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="查询结果排序"><a href="#查询结果排序" class="headerlink" title="查询结果排序"></a>查询结果排序</h3><p>使用<strong>sort()</strong>方法可以很方便的为查询结果进行排序，排序时需要指定升序或降序排列。如果指定<strong>pymongo.ASCENDING</strong>，就是升序排列，如果指定<strong>pymongo.DESCENDING</strong>，就是降序排列。</p>
+<p>可以同时对多个字段进行排序。例如，下面的例子是县对<strong>borough</strong>字段进行升序排列，当<strong>borough</strong>字段相同时，使用<strong>address.zipcode</strong>字段进行降序排列。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import pymongo</span><br><span class="line">cursor = db.restaurants.find().sort([</span><br><span class="line">    (&quot;borough&quot;, pymongo.ASCENDING),</span><br><span class="line">    (&quot;address.zipcode&quot;, pymongo.DESCENDING)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h2 id="To-Be-Continued…-…"><a href="#To-Be-Continued…-…" class="headerlink" title="To Be Continued… …"></a>To Be Continued… …</h2>]]></content>
       <categories>
         <category>mongodb</category>
       </categories>
       <tags>
-        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
+        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[Pymongo入门学习笔记（一）]]></title>
-    <url>%2Farchives%2F18d9f09d.html</url>
-    <content type="text"><![CDATA[MongoDB是由C++语言编写的基于分布式文件存储的开源数据库系统。MongoDB与MySQL等经典的关系数据库不同，它是一种NoSQL数据库。NoSQL即“Not Only SQL”，意思是“不仅仅是SQL”。MongoDB作为NoSQL代表着不仅仅是SQL没有声明性查询语言没有预定义的模式键-值对存储，列存储，文档存储，图形数据库适用于非结构化和不可预知的数据高性能，高可用性和可伸缩性MongoDB简介文档（Documents）MongoDB数据库中的一条记录（record）就是一个文档。文档由键-值对构成。MongoDB中的文档与JSON对象十分相似。文档中的值可以包含其他文档、数列或由文档构成的数列。下面是一个文档的示例：12345678910111213141516171819202122232425&#123; &quot;_id&quot; : ObjectId(&quot;54c955492b7c8eb21818bd09&quot;), &quot;address&quot; : &#123; &quot;street&quot; : &quot;2 Avenue&quot;, &quot;zipcode&quot; : &quot;10075&quot;, &quot;building&quot; : &quot;1480&quot;, &quot;coord&quot; : [ -73.9557413, 40.7720266 ] &#125;, &quot;borough&quot; : &quot;Manhattan&quot;, &quot;cuisine&quot; : &quot;Italian&quot;, &quot;grades&quot; : [ &#123; &quot;date&quot; : ISODate(&quot;2014-10-01T00:00:00Z&quot;), &quot;grade&quot; : &quot;A&quot;, &quot;score&quot; : 11 &#125;, &#123; &quot;date&quot; : ISODate(&quot;2014-01-16T00:00:00Z&quot;), &quot;grade&quot; : &quot;B&quot;, &quot;score&quot; : 17 &#125; ], &quot;name&quot; : &quot;Vella&quot;, &quot;restaurant_id&quot; : &quot;41704620&quot;&#125;集合（Collections）MongoDB把文档存储在集合中。集合的概念类似于关系数据库中的“表”（tables）。但与关系数据库的不同之处在于，一个集合并不会要求处于这个集合之下的文档使用统一的结构。MongoDB安装（Linux）下载安装尽管许多Linux发行版的软件仓库中提供了MongoDB的一键安装，但是就我的经验来讲，最好还是到官网下载tgz包下载安装比较好。这样的话，一来可以获得最新的安装版本，二来部分Linux的软件仓库中之提供了数据库的核心软件，并没有提供mongoimport、mongoexport等工具（我使用的OpenSuse Leap 42.2就是这样），而这些工具也是比较常用的。官网下载合适版本后，解压文件。12tar -zxvf [mongodb 安装包名字] #解压mv [mongodb解压目录]/ /usr/local/mongodb #将解压包拷贝到指定目录然后需要将bin目录添加到PATH路径中。在Linux中修改PATH应该修改 /etc 目录下的profile.local文件，具体根据发行版不一可能会有差异。将以下语句写到配置文件的最末行：1export PATH=$PATH:&lt;mongodb安装目录&gt;/bin启动数据库服务MongoDB数据库的默认位置是 /data/db，如果你要使用这个位置，需要手动创建这个目录。但一般我会使用其他目录，这时在启动数据库服务时，需要指定数据库路径（—dbpath）。所以，这个过程大概是这样的：12cd ~/workspace/mongodbmongod --dbpath ./不论对数据库进行什么操作，数据库服务必须处于运行状态。Mongodb后台管理Shell在终端中运行mongo命令，就可以进入后台管理Shell。MongoDB Shell是MongoDB自带的交互式Javascript shell，用来对MongoDB进行操作和管理的交互式环境。当进入MongoDB数据库后台后，它会默认连接到test数据库。Mongodb后台Shell中的命令与Pymongo中的命令大体一致，Shell中的命令使用不再赘述。详细可以查看菜鸟教程中的MongoDB教程。导入示例数据库为了学习如何操作数据，首先，需要有一些数据。通过以下步骤导入mongodb官方的示例数据库。下载示例数据下载地址为：https://raw.githubusercontent.com/mongodb/docs-assets/primer-dataset/primer-dataset.json保存成名为primer-dataset.json的文件。将数据导入到集合中在系统终端中，使用mongoimport把刚才下载的文件中的数据导入到一个名为restaurants的集合中，该集合在test数据库里。如果已经存在名为restaurants的集合，下面的命令会删除这个集合并重新导入。1mongoimport --db test --collection restaurants --drop --file ~/downloads/primer-dataset.jsonTo Be Continued… …]]></content>
+    <title>Pymongo入门学习笔记（一）</title>
+    <url>/archives/18d9f09d.html</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>MongoDB是由C++语言编写的基于分布式文件存储的开源数据库系统。MongoDB与MySQL等经典的关系数据库不同，它是一种NoSQL数据库。NoSQL即“Not Only SQL”，意思是“不仅仅是SQL”。</p>
+<h2 id="MongoDB作为NoSQL"><a href="#MongoDB作为NoSQL" class="headerlink" title="MongoDB作为NoSQL"></a>MongoDB作为NoSQL</h2><ul>
+<li>代表着不仅仅是SQL</li>
+<li>没有声明性查询语言</li>
+<li>没有预定义的模式</li>
+<li>键-值对存储，列存储，文档存储，图形数据库</li>
+<li>适用于非结构化和不可预知的数据</li>
+<li>高性能，高可用性和可伸缩性</li>
+</ul>
+<a id="more"></a>
+<h2 id="MongoDB简介"><a href="#MongoDB简介" class="headerlink" title="MongoDB简介"></a>MongoDB简介</h2><h3 id="文档（Documents）"><a href="#文档（Documents）" class="headerlink" title="文档（Documents）"></a>文档（Documents）</h3><p>MongoDB数据库中的一条<em>记录</em>（record）就是一个<em>文档</em>。文档由键-值对构成。MongoDB中的文档与JSON对象十分相似。文档中的<em>值</em>可以包含其他文档、数列或由文档构成的数列。</p>
+<p>下面是一个文档的示例：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   &quot;_id&quot; : ObjectId(&quot;54c955492b7c8eb21818bd09&quot;),</span><br><span class="line">   &quot;address&quot; : &#123;</span><br><span class="line">      &quot;street&quot; : &quot;2 Avenue&quot;,</span><br><span class="line">      &quot;zipcode&quot; : &quot;10075&quot;,</span><br><span class="line">      &quot;building&quot; : &quot;1480&quot;,</span><br><span class="line">      &quot;coord&quot; : [ -73.9557413, 40.7720266 ]</span><br><span class="line">   &#125;,</span><br><span class="line">   &quot;borough&quot; : &quot;Manhattan&quot;,</span><br><span class="line">   &quot;cuisine&quot; : &quot;Italian&quot;,</span><br><span class="line">   &quot;grades&quot; : [</span><br><span class="line">      &#123;</span><br><span class="line">         &quot;date&quot; : ISODate(&quot;2014-10-01T00:00:00Z&quot;),</span><br><span class="line">         &quot;grade&quot; : &quot;A&quot;,</span><br><span class="line">         &quot;score&quot; : 11</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         &quot;date&quot; : ISODate(&quot;2014-01-16T00:00:00Z&quot;),</span><br><span class="line">         &quot;grade&quot; : &quot;B&quot;,</span><br><span class="line">         &quot;score&quot; : 17</span><br><span class="line">      &#125;</span><br><span class="line">   ],</span><br><span class="line">   &quot;name&quot; : &quot;Vella&quot;,</span><br><span class="line">   &quot;restaurant_id&quot; : &quot;41704620&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="集合（Collections）"><a href="#集合（Collections）" class="headerlink" title="集合（Collections）"></a>集合（Collections）</h3><p>MongoDB把文档存储在集合中。集合的概念类似于关系数据库中的“表”（tables）。但与关系数据库的不同之处在于，一个集合并不会要求处于这个集合之下的文档使用统一的结构。</p>
+<h2 id="MongoDB安装（Linux）"><a href="#MongoDB安装（Linux）" class="headerlink" title="MongoDB安装（Linux）"></a>MongoDB安装（Linux）</h2><h3 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h3><p>尽管许多Linux发行版的软件仓库中提供了MongoDB的一键安装，但是就我的经验来讲，最好还是到官网下载tgz包下载安装比较好。这样的话，一来可以获得最新的安装版本，二来部分Linux的软件仓库中之提供了数据库的核心软件，并没有提供mongoimport、mongoexport等工具（我使用的OpenSuse Leap 42.2就是这样），而这些工具也是比较常用的。</p>
+<p>官网下载合适版本后，解压文件。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">tar -zxvf [mongodb 安装包名字]                                                         #解压</span><br><span class="line">mv [mongodb解压目录]/ /usr/local/mongodb                                               #将解压包拷贝到指定目录</span><br></pre></td></tr></table></figure>
+<p>然后需要将bin目录添加到PATH路径中。在Linux中修改PATH应该修改 <strong>/etc</strong> 目录下的profile.local文件，具体根据发行版不一可能会有差异。将以下语句写到配置文件的最末行：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export PATH=$PATH:&lt;mongodb安装目录&gt;/bin</span><br></pre></td></tr></table></figure>
+<h3 id="启动数据库服务"><a href="#启动数据库服务" class="headerlink" title="启动数据库服务"></a>启动数据库服务</h3><p>MongoDB数据库的默认位置是 <strong>/data/db</strong>，如果你要使用这个位置，需要手动创建这个目录。但一般我会使用其他目录，这时在启动数据库服务时，需要指定数据库路径（<strong>—dbpath</strong>）。</p>
+<p>所以，这个过程大概是这样的：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd ~/workspace/mongodb</span><br><span class="line">mongod --dbpath ./</span><br></pre></td></tr></table></figure>
+<p>不论对数据库进行什么操作，数据库服务必须处于运行状态。</p>
+<h3 id="Mongodb后台管理Shell"><a href="#Mongodb后台管理Shell" class="headerlink" title="Mongodb后台管理Shell"></a>Mongodb后台管理Shell</h3><p>在终端中运行<strong>mongo</strong>命令，就可以进入后台管理Shell。MongoDB Shell是MongoDB自带的交互式Javascript shell，用来对MongoDB进行操作和管理的交互式环境。</p>
+<p>当进入MongoDB数据库后台后，它会默认连接到test数据库。</p>
+<p>Mongodb后台Shell中的命令与Pymongo中的命令大体一致，Shell中的命令使用不再赘述。详细可以查看菜鸟教程中的<a href="http://www.runoob.com/mongodb/mongodb-tutorial.html" target="_blank" rel="noopener">MongoDB教程</a>。</p>
+<h2 id="导入示例数据库"><a href="#导入示例数据库" class="headerlink" title="导入示例数据库"></a>导入示例数据库</h2><p>为了学习如何操作数据，首先，需要有一些数据。通过以下步骤导入mongodb官方的示例数据库。</p>
+<h3 id="下载示例数据"><a href="#下载示例数据" class="headerlink" title="下载示例数据"></a>下载示例数据</h3><p>下载地址为：<a href="https://raw.githubusercontent.com/mongodb/docs-assets/primer-dataset/primer-dataset.json" target="_blank" rel="noopener">https://raw.githubusercontent.com/mongodb/docs-assets/primer-dataset/primer-dataset.json</a><br>保存成名为<strong>primer-dataset.json</strong>的文件。</p>
+<h3 id="将数据导入到集合中"><a href="#将数据导入到集合中" class="headerlink" title="将数据导入到集合中"></a>将数据导入到集合中</h3><p>在系统终端中，使用mongoimport把刚才下载的文件中的数据导入到一个名为<strong>restaurants</strong>的集合中，该集合在<strong>test</strong>数据库里。如果已经存在名为<strong>restaurants</strong>的集合，下面的命令会删除这个集合并重新导入。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mongoimport --db <span class="built_in">test</span> --collection restaurants --drop --file ~/downloads/primer-dataset.json</span><br></pre></td></tr></table></figure>
+<h2 id="To-Be-Continued…-…"><a href="#To-Be-Continued…-…" class="headerlink" title="To Be Continued… …"></a>To Be Continued… …</h2>]]></content>
       <categories>
         <category>mongodb</category>
       </categories>
       <tags>
-        <tag>python</tag>
         <tag>数据库</tag>
         <tag>mongodb</tag>
         <tag>pymongo</tag>
+        <tag>python</tag>
         <tag>入门学习笔记</tag>
       </tags>
   </entry>
